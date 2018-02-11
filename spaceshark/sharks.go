@@ -1,0 +1,179 @@
+package spaceshark
+
+import (
+	"math"
+
+	"github.com/atolVerderben/tentsuyu"
+	"github.com/hajimehoshi/ebiten"
+)
+
+//SharkController keeps track of all active sharks
+type SharkController struct {
+	sharks []*Shark
+}
+
+//CreateSharkController creates a new empty SharkController
+func CreateSharkController() *SharkController {
+	bc := &SharkController{
+		sharks: []*Shark{},
+	}
+	return bc
+}
+
+//Addshark to the SharkController
+func (bc *SharkController) Addshark(shark *Shark) {
+	bc.sharks = append(bc.sharks, shark)
+}
+
+//Update all active sharks
+func (bc *SharkController) Update(g *World) {
+	removeList := []*Shark{}
+	for i := range bc.sharks {
+		remove := bc.sharks[i].Update(g)
+		if remove {
+			removeList = append(removeList, bc.sharks[i])
+		}
+	}
+
+	for r := range removeList {
+		bc.RemoveShark(removeList[r])
+	}
+}
+
+//Draw all active sharks
+func (bc *SharkController) Draw(screen *ebiten.Image) error {
+	for i := range bc.sharks {
+		x, y := bc.sharks[i].GetPosition()
+		if tentsuyu.OnScreen(x, y, bc.sharks[i].Width, bc.sharks[i].Height) {
+			if err := bc.sharks[i].Draw(screen); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+//Shark is fired from the Tank
+type Shark struct {
+	desX, desY float64
+	isSmart    bool
+	color      int
+	ownerID    string
+	removeFlag bool
+	animCount  float64
+	ticksAlive int
+	*tentsuyu.BasicObject
+	imgParts *tentsuyu.BasicImageParts
+}
+
+//Createshark returns a shark object
+func Createshark(x, y, angle, dX, dY float64) *Shark {
+
+	shark := &Shark{
+		desX: dX,
+		desY: dY,
+		BasicObject: &tentsuyu.BasicObject{
+			X:      x,
+			Y:      y,
+			Speed:  2,
+			Width:  1,
+			Height: 1,
+			Angle:  angle,
+		},
+		imgParts: &tentsuyu.BasicImageParts{
+			Width:      1,
+			Height:     1,
+			DestHeight: 1,
+			DestWidth:  1,
+		},
+	}
+
+	return shark
+}
+
+//RemoveShark removes the shark object from the slice
+func (bc *SharkController) RemoveShark(shark *Shark) {
+	//fmt.Println("Attempting to remove shark")
+	delete := -1
+	for index, e := range bc.sharks {
+		if e == shark {
+			delete = index
+			break
+		}
+	}
+	if delete >= 0 {
+		bc.sharks = append(bc.sharks[:delete], bc.sharks[delete+1:]...)
+	}
+
+}
+
+//InTrajectory runs through the shark's path and sees if it intersects with the passed object
+func (shark *Shark) InTrajectory(obj tentsuyu.GameObject) bool {
+	vecX, vecY := math.Cos(shark.Angle), math.Sin(shark.Angle)
+	x, y := shark.GetPosition()
+	for {
+		x += shark.GetSpeed() * vecX
+		y += shark.GetSpeed() * vecY
+		if obj.Contains(x, y) {
+			return true
+		}
+		if x > 1600 || x < 0 || y > 1600 || y < 0 {
+			return false
+		}
+	}
+}
+
+//Update the shark -- returns true if shark is removed
+func (shark *Shark) Update(g *World) bool {
+
+	shark.AddPosition(shark.GetSpeed()*math.Cos(shark.Angle), shark.GetSpeed()*math.Sin(shark.Angle))
+	shark.animCount += 0.5
+	//x, y := shark.GetPosition()
+	//log.Printf("shark: (%v,%v)\n", x, y)
+
+	for _, char := range g.characters {
+		if char.IsDead() {
+			continue
+		}
+
+		if tentsuyu.Collision(char.ReturnBasicObject(), shark.BasicObject) {
+			char.TakeDamage(0.5)
+			return true
+		}
+	}
+
+	if shark.ticksAlive < 60 { // Shark may spawn off screen, this is easiest way to have him not immediately disappear
+		outOfBounds := false
+		if shark.X > 1600 || shark.X < 0 {
+			outOfBounds = true
+		}
+		if shark.Y > 1600 || shark.Y < 0 {
+			outOfBounds = true
+		}
+		if outOfBounds {
+			return true
+		}
+	}
+
+	shark.ticksAlive++
+	return false
+}
+
+//Draw the shark
+func (shark *Shark) Draw(screen *ebiten.Image) error {
+	w, h := shark.GetSize()
+	op := &ebiten.DrawImageOptions{}
+	op.ImageParts = shark.imgParts
+	op.GeoM.Translate(-float64(w)/2, -float64(h)/2)
+	op.GeoM.Rotate(shark.Angle + rightAngle)
+	op.GeoM.Translate(shark.GetPosition())
+
+	tentsuyu.ApplyCameraTransform(op, true)
+	if err := screen.DrawImage(tentsuyu.ImageManager.ReturnImage("white"), op); err != nil {
+		return err
+	}
+
+	//fmt.Println("Drew shark")
+
+	return nil
+}
