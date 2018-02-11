@@ -4,7 +4,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/atolVerderben/perihelion/tentsuyu"
+	"github.com/atolVerderben/tentsuyu"
 	"github.com/hajimehoshi/ebiten"
 )
 
@@ -63,7 +63,8 @@ type SpaceShip struct {
 	TurningLeft, TurningRight bool
 	IsServer                  bool
 	health                    float64
-	EngineExhaust             []*Exhaust
+	currImage                 string
+	movingAnim                int
 }
 
 func (ship *SpaceShip) TakeDamage(dmg float64) {
@@ -95,17 +96,19 @@ func (ship *SpaceShip) SetBounds(width, height float64) {
 	ship.BoundsHeight = height
 }
 
-//CreateSpaceShip creates the specified SpaceShip
-func CreateSpaceShip(name string, x, y float64, shipType ShipType) *SpaceShip {
+//NewSpaceShip creates the specified SpaceShip
+func NewSpaceShip(name string, x, y float64) *SpaceShip {
 	s := &SpaceShip{
 
 		Name:         name,
 		PrevX:        x,
 		PrevY:        y,
 		TurnSpeed:    0.07,
-		AngleOffset:  0, //1.5708,
+		AngleOffset:  -1.5708,
 		Acceleration: .2,
 		LastAction:   ShipStopEngine,
+		BoundsWidth:  3200,
+		BoundsHeight: 3200,
 		/*lead: &Lead{
 			BasicImageParts: &tentsuyu.BasicImageParts{
 				Sx:     332,
@@ -121,12 +124,10 @@ func CreateSpaceShip(name string, x, y float64, shipType ShipType) *SpaceShip {
 	s.BasicObject = &tentsuyu.BasicObject{
 		X:      x,
 		Y:      y,
-		Width:  32,
-		Height: 32,
+		Width:  64,
+		Height: 64,
 		Speed:  6.0,
 	}
-
-	s.EngineExhaust = append(s.EngineExhaust, CreateExhaust("left"), CreateExhaust("right"))
 
 	/*asset := &ShipAttachment{
 		angleOffset: AngleDrawOffset * 2,
@@ -140,14 +141,14 @@ func CreateSpaceShip(name string, x, y float64, shipType ShipType) *SpaceShip {
 	s.Attachments = append(s.Attachments, asset)*/
 
 	//First Blue
-	s.BasicImageParts = &tentsuyu.BasicImageParts{
+	/*s.BasicImageParts = &tentsuyu.BasicImageParts{
 		Width:      16, //98,
 		Height:     16, //75,
 		Sx:         shipType.X,
 		Sy:         shipType.Y,
 		DestHeight: 32,
 		DestWidth:  32,
-	}
+	}*/
 	return s
 }
 
@@ -198,8 +199,9 @@ func (ship *SpaceShip) Move() {
 			ship.VY = -maxV
 		}
 	}
-	ship.VY = Round(ship.VY, 0.05)
-	ship.VX = Round(ship.VX, 0.05)
+	//ship.VY = Round(ship.VY, 0.05)
+	//ship.VX = Round(ship.VX, 0.05)
+	ship.Accelerating = true
 }
 
 //Turn the ship
@@ -222,68 +224,7 @@ func (ship *SpaceShip) ShiftCmd() *ShipCommand {
 
 //Update the Spaceship
 func (ship *SpaceShip) Update(tick int) {
-	/*if true { //!ship.IsLocal {
-		if ship.nextCommand != nil {
-			if ship.nextCommand.SeqNum == tick {
-				ship.ExecuteCommand(ship.nextCommand)
-				ship.nextCommand = nil
-			} /*else {
-				if ship.nextCommand.SeqNum == 0 {
-					ship.nextCommand = nil
-				}
-			}//--end here
-		}
-		if ship.nextCommand == nil {
-			for len(ship.CommandQueue) > 0 {
-				ship.nextCommand = ship.ShiftCmd()
-				if ship.nextCommand.SeqNum == tick || ship.nextCommand.SeqNum == 0 {
-					if ship.nextCommand.SeqNum == 0 {
-						fmt.Println("=========================================== 0! ========================================================")
-					}
-					ship.ExecuteCommand(ship.nextCommand)
-					ship.nextCommand = nil
-				} else if ship.nextCommand.SeqNum > 3 {
-					fmt.Println("=========================================== 4! ========================================================")
-					ship.ExecuteCommand(ship.nextCommand)
-					ship.nextCommand = nil
-				} else {
-					break
-				}
-				/*if ship.nextCommand.SeqNum == 0 {
-					ship.nextCommand.SeqNum = 1
-					break
-				} else if ship.nextCommand.SeqNum > 3 {
-					ship.nextCommand.SeqNum = 3
-					break
-				} else if ship.nextCommand.SeqNum >= tick {
-					ship.ExecuteCommand(ship.nextCommand)
-					ship.nextCommand = nil
-				} else {
-					break
-				}//--end here
 
-			}
-		}
-	} else {
-		for len(ship.CommandQueue) > 0 {
-			ship.nextCommand = ship.ShiftCmd()
-			ship.ExecuteCommand(ship.nextCommand)
-			ship.nextCommand = nil
-
-		}
-	}*/
-	del := []int{}
-	for i, c := range ship.CommandQueue {
-		if c.SeqNum == tick {
-			ship.ExecuteCommand(c)
-			del = append(del, i)
-			//remove this element
-		}
-	}
-	for x, i := range del {
-		i = i - x
-		ship.CommandQueue = append(ship.CommandQueue[:i], ship.CommandQueue[i+1:]...)
-	}
 	prevX, prevY := ship.GetPosition()
 	ship.AddPosition(ship.VX, ship.VY)
 
@@ -315,23 +256,56 @@ func (ship *SpaceShip) Update(tick int) {
 	ship.Y = Round(ship.Y, 0.05)
 	if ship.Accelerating {
 
-		for _, e := range ship.EngineExhaust {
-			e.Update(math.Abs(ship.VX), math.Abs(ship.VY), ship.Speed/4)
+		ship.movingAnim++
+		if ship.movingAnim > 30 {
+			ship.movingAnim = 0
 		}
+	} else {
+		ship.movingAnim = 0
 	}
 }
 
 //Draw the Spaceship
 func (ship *SpaceShip) Draw(screen *ebiten.Image) error {
+
+	if ship.Accelerating {
+		op := &ebiten.DrawImageOptions{}
+		behindX := 32 * math.Cos(ship.Angle)
+		behindY := 32 * math.Sin(ship.Angle)
+
+		op.GeoM.Translate(-float64(64)/2, -float64(24)/2)
+		op.GeoM.Rotate(ship.Angle + ship.AngleOffset)
+
+		op.GeoM.Translate(ship.X-behindX, ship.Y-behindY)
+		tentsuyu.ApplyCameraTransform(op, true)
+		if ship.movingAnim < 15 {
+			if err := screen.DrawImage(tentsuyu.ImageManager.ReturnImage("thrust1"), op); err != nil {
+				return err
+			}
+		} else {
+			if err := screen.DrawImage(tentsuyu.ImageManager.ReturnImage("thrust2"), op); err != nil {
+				return err
+			}
+		}
+	}
+
 	w, h := ship.GetSize()
 	op := &ebiten.DrawImageOptions{}
-	op.ImageParts = ship.BasicImageParts
+	//op.ImageParts = ship.BasicImageParts
 	op.GeoM.Translate(-float64(w)/2, -float64(h)/2)
+	if ship.TurningLeft || ship.TurningRight {
+		ship.currImage = "shipTurnRight"
+		if ship.TurningLeft {
+			op.GeoM.Scale(-1, 1)
+		}
+	} else {
+		ship.currImage = "ship"
+	}
 	op.GeoM.Rotate(ship.Angle + ship.AngleOffset)
 	op.GeoM.Translate(ship.GetPosition())
 	tentsuyu.ApplyCameraTransform(op, true)
 
-	if err := screen.DrawImage(tentsuyu.ImageManager.ReturnImage("ships"), op); err != nil {
+	if err := screen.DrawImage(tentsuyu.ImageManager.ReturnImage(ship.currImage), op); err != nil {
 		return err
 	}
 
@@ -348,126 +322,8 @@ func (ship *SpaceShip) Draw(screen *ebiten.Image) error {
 	if err := screen.DrawImage(tentsuyu.ImageManager.ReturnImage("UI"), op); err != nil {
 		return err
 	}*/
-	if ship.Accelerating {
-		for _, e := range ship.EngineExhaust {
-			op = &ebiten.DrawImageOptions{}
-			op.ImageParts = e.activeImageParts
 
-			behindX := 16 * math.Cos(ship.Angle)
-			behindY := 16 * math.Sin(ship.Angle)
-			if e.Name == "right" {
-
-				//Strafe Left
-				/*if ebiten.IsKeyPressed(ebiten.KeyA) {
-					character.X += character.vY
-					character.Y += -character.vX
-				}
-				//Strafe Right
-				if ebiten.IsKeyPressed(ebiten.KeyD) {
-					character.X += -character.vY
-					character.Y += character.vX
-
-
-				}*/
-				//behindX += -behindY * 20
-				//behindY += behindX * 20
-			}
-
-			op.GeoM.Translate(-float64(e.activeImageParts.DestWidth)/2, -float64(e.activeImageParts.DestHeight)/2)
-			op.GeoM.Rotate(ship.Angle + ship.AngleOffset)
-			if e.Name == "left" {
-				//behindY = 16 * math.Sin(ship.Angle)
-				adjustX := 3 * math.Cos(ship.Angle)
-				adjustY := 3 * math.Sin(ship.Angle)
-				startX := ship.X + adjustY
-				startY := ship.Y - adjustX
-				op.GeoM.Translate(startX-behindX, startY-behindY)
-			}
-			if e.Name == "right" {
-				adjustX := 12 * math.Cos(ship.Angle)
-				adjustY := 12 * math.Sin(ship.Angle)
-				startX := ship.X - adjustY
-				startY := ship.Y + adjustX
-				op.GeoM.Translate(startX-behindX, startY-behindY)
-			}
-			tentsuyu.ApplyCameraTransform(op, true)
-			if err := screen.DrawImage(tentsuyu.ImageManager.ReturnImage("ships"), op); err != nil {
-				return err
-			}
-		}
-	}
-	/*for _, sa := range ship.Attachments {
-		op = &ebiten.DrawImageOptions{}
-		op.ImageParts = sa.BasicImageParts
-		op.GeoM.Translate(-float64(sa.BasicImageParts.Width)/2, -float64(sa.BasicImageParts.Height)/2)
-		//aheadX := 100 * math.Cos(sa.Angle)
-		//aheadY := 100 * math.Sin(sa.Angle)
-		op.GeoM.Translate(sa.X, sa.Y)
-		op.GeoM.Rotate(sa.Angle + sa.angleOffset)
-		op.ColorM.Scale(1.0, 1.0, 1.0, 0.4)
-		tentsuyu.ApplyCameraTransform(op, true)
-		if err := screen.DrawImage(tentsuyu.ImageManager.ReturnImage("SpaceAssets"), op); err != nil {
-			return err
-		}
-	}*/
 	return nil
-}
-
-type Exhaust struct {
-	*tentsuyu.BasicObject
-	activeImageParts *tentsuyu.BasicImageParts
-	stage            map[int]int
-	Name             string
-}
-
-func CreateExhaust(side string) *Exhaust {
-	e := &Exhaust{
-		activeImageParts: &tentsuyu.BasicImageParts{
-			Width:      8,
-			Height:     8,
-			Sx:         64,
-			Sy:         492,
-			DestHeight: 16,
-			DestWidth:  16,
-		},
-		Name:  side,
-		stage: map[int]int{},
-	}
-	e.stage[0] = 0
-	e.stage[4] = 28
-	e.stage[3] = 40
-	e.stage[2] = 52
-	e.stage[1] = 64
-	return e
-}
-
-func (e *Exhaust) Update(vX, vY, quarterV float64) {
-	maxX := 1
-	maxY := 1
-	if vX > quarterV && vX <= quarterV*2 {
-		maxX = 2
-	} else if vX > quarterV*2 && vX <= quarterV*3 {
-		maxX = 3
-	} else if vX >= quarterV*4 {
-		maxX = 4
-	}
-
-	if vY > quarterV && vY <= quarterV*2 {
-		maxY = 2
-	} else if vY > quarterV*2 && vY <= quarterV*3 {
-		maxY = 3
-	} else if vY >= quarterV*4 {
-		maxY = 4
-	}
-
-	if maxX > maxY {
-		e.activeImageParts.Sx = e.stage[maxX]
-	} else if maxY > maxX {
-		e.activeImageParts.Sx = e.stage[maxY]
-	} else {
-		e.activeImageParts.Sx = e.stage[maxX]
-	}
-
 }
 
 func Round(x, unit float64) float64 {

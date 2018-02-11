@@ -37,11 +37,28 @@ func NewSpaceScene(g *Game) *SpaceScene {
 			gm.SendMessage(p, now)
 		}
 	}(gm, g.player)*/
+	tentsuyu.Components.Camera.SetZoom(0.75)
 
 	return gm
 }
 
 func (gm *SpaceScene) Update(g *Game) error {
+
+	g.player.homeShip.TurningLeft = false
+	g.player.homeShip.TurningRight = false
+	if tentsuyu.Input.Button("Left").Down() {
+		g.player.homeShip.Turn("Left")
+		g.player.homeShip.TurningLeft = true
+	}
+	if tentsuyu.Input.Button("Right").Down() {
+		g.player.homeShip.Turn("Right")
+		g.player.homeShip.TurningRight = true
+	}
+	if tentsuyu.Input.Button("Up").Down() {
+		g.player.homeShip.Move()
+	} else {
+		g.player.homeShip.Accelerating = false
+	}
 
 	if gm.tick == 0 {
 		gm.startTickTime = time.Now()

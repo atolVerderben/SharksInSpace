@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/atolVerderben/tentsuyu"
-	"github.com/hajimehoshi/ebiten"
 )
 
 type TitleMain struct {
@@ -40,8 +39,8 @@ func NewTitleMain() *TitleMain {
 	}
 
 	t.start = &tentsuyu.MenuElement{
-		UIElement:  tentsuyu.NewTextElementStationary(200, 325, 200, 30, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Start Game"}, color.Black, 24),
-		Action:     func() { t.gameStateMsg = GameStateMsgReqMainMenu },
+		UIElement:  tentsuyu.NewTextElementStationary(200, 325, 200, 30, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Start Game"}, color.White, 24),
+		Action:     func() { t.gameStateMsg = GameStateMsgReqMain },
 		Selectable: true,
 	}
 
@@ -128,7 +127,7 @@ func (t *TitleMain) Draw(game *Game) error {
 	if err := game.screen.DrawImage(tentsuyu.ImageManager.ReturnImage("shenanijam"), op); err != nil {
 		return err
 	}*/
-	game.DrawBackground() //background.Draw(game.screen, true)
+	//game.DrawBackground() //background.Draw(game.screen, true)
 	/*op := &ebiten.DrawImageOptions{}
 	op.GeoM.Scale(5, 5)
 	op.GeoM.Translate(90, 80)
@@ -138,7 +137,7 @@ func (t *TitleMain) Draw(game *Game) error {
 		return err
 	}*/
 
-	op := &ebiten.DrawImageOptions{}
+	/*op := &ebiten.DrawImageOptions{}
 	op.ImageParts = &tentsuyu.BasicImageParts{
 		Sx:     GameSheet.Frames[frameSpalooshLogo].Frame["x"],
 		Sy:     GameSheet.Frames[frameSpalooshLogo].Frame["y"],
@@ -165,7 +164,7 @@ func (t *TitleMain) Draw(game *Game) error {
 
 	if err := game.screen.DrawImage(tentsuyu.ImageManager.ReturnImage("spaloosh-sheet"), op); err != nil {
 		return err
-	}
+	}*/
 
 	t.start.Draw(game.screen)
 	//t.title.Draw(game.screen)

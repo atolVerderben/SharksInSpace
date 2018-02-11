@@ -1,7 +1,7 @@
 package spaceshark
 
 import "github.com/hajimehoshi/ebiten"
-import "github.com/atolVerderben/perihelion/tentsuyu"
+import "github.com/atolVerderben/tentsuyu"
 
 type backgroundImageParts struct {
 	image         *ebiten.Image

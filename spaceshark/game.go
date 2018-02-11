@@ -141,8 +141,11 @@ func (g *Game) loadImages() error {
 	tentsuyu.Components.UIController.AddFontFile(FntGoMono, mono)
 	//tentsuyu.Components.UIController.AddFontFile("font1", tt)
 
-	tentsuyu.ImageManager.LoadImageFromFile("spaloosh-sheet", "assets/spaloosh-sheet.png")
-	tentsuyu.ImageManager.LoadImageFromFile("stars", "assets/space/purple.png")
+	tentsuyu.ImageManager.LoadImageFromFile("ship", "assets/sprites/ship-idle1.png")
+	tentsuyu.ImageManager.LoadImageFromFile("shipTurnRight", "assets/sprites/ship-idle.png")
+	tentsuyu.ImageManager.LoadImageFromFile("thrust1", "assets/sprites/ship-thrust1.png")
+	tentsuyu.ImageManager.LoadImageFromFile("thrust2", "assets/sprites/ship-thrust2.png")
+	tentsuyu.ImageManager.LoadImageFromFile("stars", "assets/sprites/backdrop-purple.png")
 
 	drawImage, err := ebiten.NewImage(64, 64, ebiten.FilterNearest)
 	if err != nil {
@@ -167,7 +170,7 @@ func (g *Game) loadImages() error {
 	healthImg.Fill(color.RGBA{R: 255, G: 255, B: 255, A: 255})
 	tentsuyu.ImageManager.AddImage("health", healthImg)
 
-	GameSheet = ReadSpriteSheet("assets/spaloosh-sheet.json")
+	//GameSheet = ReadSpriteSheet("assets/spaloosh-sheet.json")
 
 	//ebiten.SetFullscreen(true)
 	return nil
@@ -225,7 +228,7 @@ func (g *Game) Loop(screen *ebiten.Image) error {
 		case GameStateMsgReqMainMenu:
 			g.gameState = NewMainMenu(g)
 		case GameStateMsgReqMain:
-			g.mainState = NewGameMain(g)
+			g.mainState = NewSpaceScene(g) //NewGameMain(g)
 			g.gameState = g.mainState
 		}
 	}
@@ -236,7 +239,7 @@ func (g *Game) Loop(screen *ebiten.Image) error {
 		if err := g.gameState.Draw(g); err != nil {
 			return err
 		}
-		g.toggleScreenText.Draw(g.screen)
+		//g.toggleScreenText.Draw(g.screen)
 	}
 	g.gameData.Update()
 

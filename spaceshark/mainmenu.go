@@ -139,7 +139,7 @@ func (t *MainMenu) Draw(game *Game) error {
 	if err := game.screen.DrawImage(tentsuyu.ImageManager.ReturnImage("shenanijam"), op); err != nil {
 		return err
 	}*/
-	game.DrawBackground() //background.Draw(game.screen, true)
+	//game.DrawBackground() //background.Draw(game.screen, true)
 
 	t.menu.Draw(game.screen)
 	//t.title.Draw(game.screen)

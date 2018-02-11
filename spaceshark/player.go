@@ -7,7 +7,8 @@ type Player struct {
 
 func NewPlayer() *Player {
 	p := &Player{
-		character: NewCommonChar(50, 50, FactionPlayer),
+		//character: NewCommonChar(50, 50, FactionPlayer),
+		homeShip: NewSpaceShip("Gopher", 30, 50),
 	}
 
 	return p
