@@ -43,6 +43,7 @@ func NewSpaceScene(g *Game) *SpaceScene {
 		characters: []Character{},
 		sharks:     CreateSharkController(),
 		bullets:    CreateBulletController(),
+		player:     g.player,
 	}
 	gm.world.characters = append(gm.world.characters, g.player.homeShip)
 

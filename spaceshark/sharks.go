@@ -1,7 +1,9 @@
 package spaceshark
 
 import (
+	"log"
 	"math"
+	"math/rand"
 
 	"github.com/atolVerderben/tentsuyu"
 	"github.com/hajimehoshi/ebiten"
@@ -9,13 +11,16 @@ import (
 
 //SharkController keeps track of all active sharks
 type SharkController struct {
-	sharks []*Shark
+	sharks    []*Shark
+	maxCount  int
+	nextSpawn int
 }
 
 //CreateSharkController creates a new empty SharkController
 func CreateSharkController() *SharkController {
 	bc := &SharkController{
-		sharks: []*Shark{},
+		sharks:   []*Shark{},
+		maxCount: 50,
 	}
 	return bc
 }
@@ -27,6 +32,9 @@ func (bc *SharkController) Addshark(shark *Shark) {
 
 //Update all active sharks
 func (bc *SharkController) Update(g *World) {
+	if bc.nextSpawn > 0 {
+		bc.nextSpawn--
+	}
 	removeList := []*Shark{}
 	for i := range bc.sharks {
 		remove := bc.sharks[i].Update(g)
@@ -37,6 +45,25 @@ func (bc *SharkController) Update(g *World) {
 
 	for r := range removeList {
 		bc.RemoveShark(removeList[r])
+	}
+	if bc.maxCount > len(bc.sharks) && bc.nextSpawn <= 0 {
+		log.Println("Added Shark")
+		rX := rand.Intn(3200)
+		rY := rand.Intn(3200)
+
+		for tentsuyu.OnScreen(float64(rX), float64(rY), 109, 109) == true {
+			rX = rand.Intn(3200)
+			rY = rand.Intn(3200)
+		}
+
+		tx, ty := g.player.homeShip.GetPosition()
+		angle := math.Atan2(ty-float64(rY), tx-float64(rX))
+
+		bc.Addshark(CreateShark(float64(rX), float64(rY), angle))
+
+		r := rand.Intn(100)
+		bc.nextSpawn = r + 1
+
 	}
 }
 
@@ -68,7 +95,7 @@ type Shark struct {
 	imgParts *tentsuyu.BasicImageParts
 }
 
-//Createshark returns a shark object
+//CreateShark returns a shark object
 func CreateShark(x, y, angle float64) *Shark {
 
 	shark := &Shark{
@@ -76,7 +103,7 @@ func CreateShark(x, y, angle float64) *Shark {
 		BasicObject: &tentsuyu.BasicObject{
 			X:      x,
 			Y:      y,
-			Speed:  2,
+			Speed:  8,
 			Width:  64,
 			Height: 109,
 			Angle:  angle,
@@ -140,6 +167,9 @@ func (shark *Shark) Update(g *World) bool {
 	}
 	shark.AddPosition(shark.GetSpeed()*math.Cos(shark.Angle), shark.GetSpeed()*math.Sin(shark.Angle))
 	shark.animCount++
+	if shark.animCount > 60 {
+		shark.animCount = 0
+	}
 	//x, y := shark.GetPosition()
 	//log.Printf("shark: (%v,%v)\n", x, y)
 
@@ -154,16 +184,20 @@ func (shark *Shark) Update(g *World) bool {
 		}
 	}
 
-	if shark.ticksAlive < 60 { // Shark may spawn off screen, this is easiest way to have him not immediately disappear
-		outOfBounds := false
-		if shark.X > 3200 || shark.X < 0 {
-			outOfBounds = true
+	if shark.ticksAlive > 60 { // Shark may spawn off screen, this is easiest way to have him not immediately disappear
+		x, y := shark.GetPosition()
+		if x > 3200 {
+			shark.SetX(0)
 		}
-		if shark.Y > 3200 || shark.Y < 0 {
-			outOfBounds = true
+		if x < 0 {
+			shark.SetX(3200)
+
 		}
-		if outOfBounds {
-			return true
+		if y > 3200 {
+			shark.SetY(0)
+		}
+		if y < 0 {
+			shark.SetY(3200)
 		}
 	}
 
@@ -175,13 +209,22 @@ func (shark *Shark) Update(g *World) bool {
 func (shark *Shark) Draw(screen *ebiten.Image) error {
 	w, h := shark.GetSize()
 	op := &ebiten.DrawImageOptions{}
-	op.ImageParts = shark.imgParts
+	//op.ImageParts = shark.imgParts
 	op.GeoM.Translate(-float64(w)/2, -float64(h)/2)
-	op.GeoM.Rotate(shark.Angle + rightAngle)
+	op.GeoM.Rotate(shark.Angle - rightAngle)
 	op.GeoM.Translate(shark.GetPosition())
 
 	tentsuyu.ApplyCameraTransform(op, true)
-	if err := screen.DrawImage(tentsuyu.ImageManager.ReturnImage("white"), op); err != nil {
+	if shark.animCount < 15 {
+		shark.currImage = "shark1"
+	} else if shark.animCount >= 15 && shark.animCount < 30 {
+		shark.currImage = "shark2"
+	} else if shark.animCount >= 30 && shark.animCount < 45 {
+		shark.currImage = "shark1"
+	} else if shark.animCount >= 45 {
+		shark.currImage = "shark3"
+	}
+	if err := screen.DrawImage(tentsuyu.ImageManager.ReturnImage(shark.currImage), op); err != nil {
 		return err
 	}
 
