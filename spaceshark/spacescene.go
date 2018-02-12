@@ -43,6 +43,7 @@ func NewSpaceScene(g *Game) *SpaceScene {
 		characters: []Character{},
 		sharks:     CreateSharkController(),
 		bullets:    CreateBulletController(),
+		explosions: CreateExplosionController(),
 		player:     g.player,
 	}
 	gm.world.characters = append(gm.world.characters, g.player.homeShip)
@@ -68,9 +69,12 @@ func (gm *SpaceScene) Update(g *Game) error {
 		g.player.homeShip.Accelerating = false
 	}
 
-	if tentsuyu.Input.Button("Shoot").JustPressed() {
+	if tentsuyu.Input.Button("Shoot").Down() {
 		//gm.world.bullets.AddBullet(CreateBullet("Player", g.player.homeShip.X, g.player.homeShip.Y, g.player.homeShip.Angle))
-		gm.world.bullets.Fire("Player", g.player.homeShip.X, g.player.homeShip.Y, g.player.homeShip.Angle)
+		if g.player.homeShip.coolDown == 0 {
+			g.player.homeShip.coolDown = 1
+			gm.world.bullets.Fire("Player", g.player.homeShip.X, g.player.homeShip.Y, g.player.homeShip.Angle)
+		}
 	}
 
 	if gm.tick == 0 {

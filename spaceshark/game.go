@@ -154,6 +154,9 @@ func (g *Game) loadImages() error {
 	tentsuyu.ImageManager.LoadImageFromFile("shark1", "assets/sprites/shark1.png")
 	tentsuyu.ImageManager.LoadImageFromFile("shark2", "assets/sprites/shark2.png")
 	tentsuyu.ImageManager.LoadImageFromFile("shark3", "assets/sprites/shark3.png")
+	tentsuyu.ImageManager.LoadImageFromFile("explosion1", "assets/sprites/explosion1.png")
+	tentsuyu.ImageManager.LoadImageFromFile("explosion2", "assets/sprites/explosion2.png")
+	tentsuyu.ImageManager.LoadImageFromFile("explosion3", "assets/sprites/explosion3.png")
 
 	drawImage, err := ebiten.NewImage(64, 64, ebiten.FilterNearest)
 	if err != nil {

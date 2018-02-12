@@ -39,6 +39,7 @@ func (bc *BulletController) Update(g *World) {
 	}
 
 	for r := range removeList {
+		g.explosions.CreateExplosion(removeList[r].X, removeList[r].Y, 15, explosionSmall)
 		bc.RemoveBullet(removeList[r])
 	}
 }

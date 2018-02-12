@@ -65,6 +65,7 @@ type SpaceShip struct {
 	health                    int
 	currImage                 string
 	movingAnim                int
+	coolDown, coolDownMax     int
 }
 
 func (ship *SpaceShip) TakeDamage(dmg int) {
@@ -110,6 +111,7 @@ func NewSpaceShip(name string, x, y float64) *SpaceShip {
 		BoundsWidth:  3200,
 		BoundsHeight: 3200,
 		health:       2,
+		coolDownMax:  15,
 		/*lead: &Lead{
 			BasicImageParts: &tentsuyu.BasicImageParts{
 				Sx:     332,
@@ -225,7 +227,12 @@ func (ship *SpaceShip) ShiftCmd() *ShipCommand {
 
 //Update the Spaceship
 func (ship *SpaceShip) Update() {
-
+	if ship.coolDown > 0 {
+		ship.coolDown++
+		if ship.coolDown > ship.coolDownMax {
+			ship.coolDown = 0
+		}
+	}
 	//prevX, prevY := ship.GetPosition()
 	ship.AddPosition(ship.VX, ship.VY)
 

@@ -44,6 +44,7 @@ func (bc *SharkController) Update(g *World) {
 	}
 
 	for r := range removeList {
+		g.explosions.CreateExplosion(removeList[r].X, removeList[r].Y, 8, explosionLarge)
 		bc.RemoveShark(removeList[r])
 	}
 	if bc.maxCount > len(bc.sharks) && bc.nextSpawn <= 0 {
@@ -174,12 +175,13 @@ func (shark *Shark) Update(g *World) bool {
 	//log.Printf("shark: (%v,%v)\n", x, y)
 
 	for _, char := range g.characters {
-		if char.IsDead() {
+		/*if char.IsDead() {
 			continue
-		}
+		}*/
 
 		if tentsuyu.Collision(char.ReturnBasicObject(), shark.BasicObject) {
 			char.TakeDamage(5)
+			g.explosions.CreateExplosion(shark.X, shark.Y, 8, explosionLarge)
 			return true
 		}
 	}
