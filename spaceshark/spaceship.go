@@ -126,7 +126,7 @@ func NewSpaceShip(name string, x, y float64) *SpaceShip {
 		X:      x,
 		Y:      y,
 		Width:  64,
-		Height: 64,
+		Height: 50,
 		Speed:  6.0,
 	}
 

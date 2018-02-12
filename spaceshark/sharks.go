@@ -63,6 +63,7 @@ type Shark struct {
 	animCount  int
 	ticksAlive int
 	health     int
+	currImage  string
 	*tentsuyu.BasicObject
 	imgParts *tentsuyu.BasicImageParts
 }
@@ -76,8 +77,8 @@ func CreateShark(x, y, angle float64) *Shark {
 			X:      x,
 			Y:      y,
 			Speed:  2,
-			Width:  1,
-			Height: 1,
+			Width:  64,
+			Height: 109,
 			Angle:  angle,
 		},
 		imgParts: &tentsuyu.BasicImageParts{
@@ -155,10 +156,10 @@ func (shark *Shark) Update(g *World) bool {
 
 	if shark.ticksAlive < 60 { // Shark may spawn off screen, this is easiest way to have him not immediately disappear
 		outOfBounds := false
-		if shark.X > 1600 || shark.X < 0 {
+		if shark.X > 3200 || shark.X < 0 {
 			outOfBounds = true
 		}
-		if shark.Y > 1600 || shark.Y < 0 {
+		if shark.Y > 3200 || shark.Y < 0 {
 			outOfBounds = true
 		}
 		if outOfBounds {
