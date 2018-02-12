@@ -147,7 +147,7 @@ func (g *Game) loadImages() error {
 	tentsuyu.ImageManager.LoadImageFromFile("thrust1", "assets/sprites/ship-thrust1.png")
 	tentsuyu.ImageManager.LoadImageFromFile("thrust2", "assets/sprites/ship-thrust2.png")
 	tentsuyu.ImageManager.LoadImageFromFile("stars", "assets/sprites/startest-clay.png")
-	tentsuyu.ImageManager.LoadImageFromFile("background", "assets/sprites/space.png")
+	tentsuyu.ImageManager.LoadImageFromFile("background", "assets/sprites/backdrop-purple.png")
 	tentsuyu.ImageManager.LoadImageFromFile("laser1", "assets/sprites/laser1.png")
 	tentsuyu.ImageManager.LoadImageFromFile("laser2", "assets/sprites/laser2.png")
 	tentsuyu.ImageManager.LoadImageFromFile("laser3", "assets/sprites/laser3.png")
@@ -157,6 +157,8 @@ func (g *Game) loadImages() error {
 	tentsuyu.ImageManager.LoadImageFromFile("explosion1", "assets/sprites/explosion1.png")
 	tentsuyu.ImageManager.LoadImageFromFile("explosion2", "assets/sprites/explosion2.png")
 	tentsuyu.ImageManager.LoadImageFromFile("explosion3", "assets/sprites/explosion3.png")
+	tentsuyu.ImageManager.LoadImageFromFile("debris1", "assets/sprites/debris.png")
+	tentsuyu.ImageManager.LoadImageFromFile("debris2", "assets/sprites/debris2.png")
 
 	drawImage, err := ebiten.NewImage(64, 64, ebiten.FilterNearest)
 	if err != nil {

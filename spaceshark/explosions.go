@@ -1,6 +1,9 @@
 package spaceshark
 
 import (
+	"math"
+	"math/rand"
+
 	"github.com/atolVerderben/tentsuyu"
 	"github.com/hajimehoshi/ebiten"
 )
@@ -98,7 +101,7 @@ func (e *Explosion) Draw(screen *ebiten.Image) error {
 	//op.ImageParts = e.imageParts
 	op.GeoM.Translate(-float64(w)/2, -float64(h)/2)
 
-	//op.GeoM.Rotate(s.angle + AngleDrawOffset)
+	op.GeoM.Rotate(e.Angle)
 	op.GeoM.Translate(e.GetPosition())
 
 	//GameCamera.DrawCameraTransform(op)
@@ -127,6 +130,7 @@ func CreateExplosion(x, y float64, duration int, size explosionSize) *Explosion 
 			Y:      y,
 			Width:  64,
 			Height: 64,
+			Angle:  ((float64(rand.Intn(360)) * math.Pi) / 180.0),
 		},
 	}
 

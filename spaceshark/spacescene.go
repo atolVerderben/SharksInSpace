@@ -44,6 +44,7 @@ func NewSpaceScene(g *Game) *SpaceScene {
 		sharks:     CreateSharkController(),
 		bullets:    CreateBulletController(),
 		explosions: CreateExplosionController(),
+		debris:     CreateDebrisController(),
 		player:     g.player,
 	}
 	gm.world.characters = append(gm.world.characters, g.player.homeShip)
@@ -101,7 +102,6 @@ func (gm *SpaceScene) Draw(g *Game) error {
 		DestWidth:  1336,
 		DestHeight: 768,
 	}
-	op.ColorM.Scale(1, 1, 1, 0.5)
 	if err := g.screen.DrawImage(tentsuyu.ImageManager.ReturnImage("background"), op); err != nil {
 		return err
 	}*/

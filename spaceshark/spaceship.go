@@ -55,21 +55,24 @@ type SpaceShip struct {
 	BasicImageParts *tentsuyu.BasicImageParts
 	CommandQueue    []*ShipCommand
 	*tentsuyu.BasicObject
-	BoundsWidth, BoundsHeight float64
-	LastAction                ShipAction
-	nextCommand               *ShipCommand
-	IsLocal                   bool
-	PrevAngle                 float64
-	TurningLeft, TurningRight bool
-	IsServer                  bool
-	health                    int
-	currImage                 string
-	movingAnim                int
-	coolDown, coolDownMax     int
+	BoundsWidth, BoundsHeight                          float64
+	LastAction                                         ShipAction
+	nextCommand                                        *ShipCommand
+	IsLocal                                            bool
+	PrevAngle                                          float64
+	TurningLeft, TurningRight                          bool
+	IsServer                                           bool
+	health                                             int
+	currImage                                          string
+	movingAnim                                         int
+	coolDown, coolDownMax, hitCoolDown, hitCoolDownMax int
 }
 
 func (ship *SpaceShip) TakeDamage(dmg int) {
-	ship.health -= dmg
+	if ship.hitCoolDown == 0 {
+		ship.health -= dmg
+		ship.hitCoolDown = 1
+	}
 }
 
 func (ship *SpaceShip) IsDead() bool {
@@ -101,17 +104,18 @@ func (ship *SpaceShip) SetBounds(width, height float64) {
 func NewSpaceShip(name string, x, y float64) *SpaceShip {
 	s := &SpaceShip{
 
-		Name:         name,
-		PrevX:        x,
-		PrevY:        y,
-		TurnSpeed:    0.07,
-		AngleOffset:  -1.5708,
-		Acceleration: .2,
-		LastAction:   ShipStopEngine,
-		BoundsWidth:  3200,
-		BoundsHeight: 3200,
-		health:       2,
-		coolDownMax:  15,
+		Name:           name,
+		PrevX:          x,
+		PrevY:          y,
+		TurnSpeed:      0.07,
+		AngleOffset:    -1.5708,
+		Acceleration:   .2,
+		LastAction:     ShipStopEngine,
+		BoundsWidth:    3200,
+		BoundsHeight:   3200,
+		health:         2,
+		coolDownMax:    15,
+		hitCoolDownMax: 60,
 		/*lead: &Lead{
 			BasicImageParts: &tentsuyu.BasicImageParts{
 				Sx:     332,
@@ -233,6 +237,13 @@ func (ship *SpaceShip) Update() {
 			ship.coolDown = 0
 		}
 	}
+
+	if ship.hitCoolDown > 0 {
+		ship.hitCoolDown++
+		if ship.hitCoolDown > ship.hitCoolDownMax {
+			ship.hitCoolDown = 0
+		}
+	}
 	//prevX, prevY := ship.GetPosition()
 	ship.AddPosition(ship.VX, ship.VY)
 
@@ -298,6 +309,10 @@ func (ship *SpaceShip) Draw(screen *ebiten.Image) error {
 		op.GeoM.Rotate(ship.Angle + ship.AngleOffset)
 
 		op.GeoM.Translate(ship.X-behindX, ship.Y-behindY)
+
+		if ship.hitCoolDown > 0 {
+			op.ColorM.Scale(1, 1, 1, 0.75)
+		}
 		tentsuyu.ApplyCameraTransform(op, true)
 		if ship.movingAnim < 15 {
 			if err := screen.DrawImage(tentsuyu.ImageManager.ReturnImage("thrust1"), op); err != nil {
@@ -324,6 +339,9 @@ func (ship *SpaceShip) Draw(screen *ebiten.Image) error {
 	}
 	op.GeoM.Rotate(ship.Angle + ship.AngleOffset)
 	op.GeoM.Translate(ship.GetPosition())
+	if ship.hitCoolDown > 0 {
+		op.ColorM.Scale(1, 1, 1, 0.5)
+	}
 	tentsuyu.ApplyCameraTransform(op, true)
 
 	if err := screen.DrawImage(tentsuyu.ImageManager.ReturnImage(ship.currImage), op); err != nil {

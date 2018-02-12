@@ -1,7 +1,6 @@
 package spaceshark
 
 import (
-	"log"
 	"math"
 	"math/rand"
 
@@ -45,10 +44,13 @@ func (bc *SharkController) Update(g *World) {
 
 	for r := range removeList {
 		g.explosions.CreateExplosion(removeList[r].X, removeList[r].Y, 8, explosionLarge)
+		angle := rand.Intn(360)
+		g.debris.AddDebris(CreateDebris(removeList[r].X, removeList[r].Y, (float64(angle)*math.Pi)/180.0))
+		angle = rand.Intn(360)
+		g.debris.AddDebris(CreateDebris(removeList[r].X, removeList[r].Y, (float64(angle)*math.Pi)/180.0))
 		bc.RemoveShark(removeList[r])
 	}
 	if bc.maxCount > len(bc.sharks) && bc.nextSpawn <= 0 {
-		log.Println("Added Shark")
 		rX := rand.Intn(3200)
 		rY := rand.Intn(3200)
 

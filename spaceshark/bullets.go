@@ -168,6 +168,17 @@ func (bullet *Bullet) Update(g *World) bool {
 			return true
 		}
 	}
+	for _, d := range g.debris.debris {
+
+		/*if char.ReturnFaction() == bullet.owner.ReturnFaction() {
+			continue
+		}*/
+
+		if tentsuyu.Collision(d.ReturnBasicObject(), bullet.BasicObject) {
+			d.TakeDamage(1)
+			return true
+		}
+	}
 	/*for _, guy := range g.Characters {
 		char := guy //.ReturnCharacter()
 		if tentsuyu.Collision(char.BasicObject, bullet.BasicObject) {

@@ -7,6 +7,7 @@ type World struct {
 	sharks        *SharkController
 	bullets       *BulletController
 	explosions    *ExplosionController
+	debris        *DebrisController
 	player        *Player
 	width, height float64
 }
@@ -18,6 +19,7 @@ func (w *World) Update() {
 	w.bullets.Update(w)
 	w.sharks.Update(w)
 	w.explosions.Update()
+	w.debris.Update(w)
 }
 
 func (w *World) Draw(screen *ebiten.Image) error {
@@ -27,5 +29,6 @@ func (w *World) Draw(screen *ebiten.Image) error {
 	w.bullets.Draw(screen)
 	w.sharks.Draw(screen)
 	w.explosions.Draw(screen)
+	w.debris.Draw(screen)
 	return nil
 }
