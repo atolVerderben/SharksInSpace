@@ -58,29 +58,23 @@ func (bc *BulletController) Draw(screen *ebiten.Image) error {
 
 //Bullet is fired from the Tank
 type Bullet struct {
-	desX, desY float64
-	isSmart    bool
-	color      int
-	owner      Character
+	ownerID    string
 	removeFlag bool
-	animCount  float64
+	animCount  int
 	*tentsuyu.BasicObject
 }
 
 //CreateBullet returns a bullet object
-func CreateBullet(owner Character, x, y, angle, dX, dY float64, isSmart bool) *Bullet {
+func CreateBullet(ownerID string, x, y, angle float64) *Bullet {
 
 	bullet := &Bullet{
-		owner:   owner,
-		desX:    dX,
-		desY:    dY,
-		isSmart: isSmart,
+		ownerID: ownerID,
 		BasicObject: &tentsuyu.BasicObject{
 			X:      x,
 			Y:      y,
-			Speed:  2,
-			Width:  1,
-			Height: 1,
+			Speed:  15,
+			Width:  32,
+			Height: 75,
 			Angle:  angle,
 		},
 	}
@@ -88,13 +82,35 @@ func CreateBullet(owner Character, x, y, angle, dX, dY float64, isSmart bool) *B
 	//log.Printf("Bullet (%v,%v)\n", bullet.desX, bullet.desY)
 
 	//Move in front of tank turrent
-	bullet.AddPosition(20*math.Cos(angle), 20*math.Sin(angle))
+	//bullet.AddPosition(20*math.Cos(angle), 20*math.Sin(angle))
 
 	//GameBulletController.AddBullet(bullet)
 	//GameBullets = append(GameBullets, bullet)
 
 	//CreateSmoke(bullet.X, bullet.Y, 6, ColorSmokeWhite, true)
 	return bullet
+}
+
+func (bc *BulletController) Fire(owner string, x, y, angle float64) {
+	b1 := CreateBullet(owner, x, y, angle)
+	b2 := CreateBullet(owner, x, y, angle)
+
+	adjustX := 24 * math.Cos(angle)
+	adjustY := 24 * math.Sin(angle)
+	startX := x + adjustY
+	startY := y - adjustX
+	b1.SetPosition(startX, startY)
+	b1.AddPosition((25 * math.Cos(angle)), (25 * math.Sin(angle)))
+
+	adjustX = 12 * math.Cos(angle)
+	adjustY = 12 * math.Sin(angle)
+	startX = x - adjustY
+	startY = y + adjustX
+	b2.SetPosition(startX, startY)
+	b2.AddPosition((25 * math.Cos(angle)), (25 * math.Sin(angle)))
+
+	bc.AddBullet(b1)
+	bc.AddBullet(b2)
 }
 
 //RemoveBullet removes the bullet object from the slice
@@ -133,21 +149,21 @@ func (bullet *Bullet) InTrajectory(obj tentsuyu.GameObject) bool {
 func (bullet *Bullet) Update(g *World) bool {
 
 	bullet.AddPosition(bullet.GetSpeed()*math.Cos(bullet.Angle), bullet.GetSpeed()*math.Sin(bullet.Angle))
-	bullet.animCount += 0.5
-	x, y := bullet.GetPosition()
+	bullet.animCount++
+	if bullet.animCount >= 45 {
+		bullet.animCount = 0
+	}
+	//x, y := bullet.GetPosition()
 	//log.Printf("Bullet: (%v,%v)\n", x, y)
 
-	for _, char := range g.characters {
-		if char.IsDead() {
-			continue
-		}
+	for _, shark := range g.sharks.sharks {
 
-		if char.ReturnFaction() == bullet.owner.ReturnFaction() {
+		/*if char.ReturnFaction() == bullet.owner.ReturnFaction() {
 			continue
-		}
+		}*/
 
-		if tentsuyu.Collision(char.ReturnBasicObject(), bullet.BasicObject) {
-			char.TakeDamage(0.5)
+		if tentsuyu.Collision(shark.ReturnBasicObject(), bullet.BasicObject) {
+			shark.TakeDamage(1)
 			return true
 		}
 	}
@@ -205,17 +221,11 @@ func (bullet *Bullet) Update(g *World) bool {
 		}
 	}*/
 
-	if bullet.isSmart && NearCoords(x, y, bullet.desX, bullet.desY, 12.0) {
-		//CreateSmoke(bullet.X, bullet.Y, 8, ColorSmokeGrey, true)
-		//RemoveBullet(bullet)
-		return true
-	}
-
 	outOfBounds := false
-	if bullet.X > 1600 || bullet.X < 0 {
+	if bullet.X > 3200 || bullet.X < 0 {
 		outOfBounds = true
 	}
-	if bullet.Y > 1600 || bullet.Y < 0 {
+	if bullet.Y > 3200 || bullet.Y < 0 {
 		outOfBounds = true
 	}
 	if outOfBounds {
@@ -229,20 +239,24 @@ func (bullet *Bullet) Update(g *World) bool {
 func (bullet *Bullet) Draw(screen *ebiten.Image) error {
 	w, h := bullet.GetSize()
 	op := &ebiten.DrawImageOptions{}
-	op.ImageParts = &tentsuyu.BasicImageParts{
-		Width:      1,
-		Height:     1,
-		DestHeight: 1,
-		DestWidth:  1} //bullet.tankImageParts
+
 	op.GeoM.Translate(-float64(w)/2, -float64(h)/2)
-	op.GeoM.Rotate(bullet.Angle + bullet.animCount)
+	op.GeoM.Rotate(bullet.Angle - rightAngle)
 	op.GeoM.Translate(bullet.GetPosition())
 	//if bullet.color == ColorTankBlack {
 	op.ColorM.Scale(1, 1, 1, 1)
 	//}
 	//GameCamera.DrawCameraTransform(op)
+	imageName := "white"
+	if bullet.animCount < 15 {
+		imageName = "laser1"
+	} else if bullet.animCount >= 15 && bullet.animCount < 30 {
+		imageName = "laser2"
+	} else if bullet.animCount >= 30 {
+		imageName = "laser3"
+	}
 	tentsuyu.ApplyCameraTransform(op, true)
-	if err := screen.DrawImage(tentsuyu.ImageManager.ReturnImage("white"), op); err != nil {
+	if err := screen.DrawImage(tentsuyu.ImageManager.ReturnImage(imageName), op); err != nil {
 		return err
 	}
 

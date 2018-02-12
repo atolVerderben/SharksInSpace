@@ -41,5 +41,6 @@ func (s *backgroundImageParts) Draw(screen *ebiten.Image, isStill bool) {
 		op.ColorM.Scale(1.0, 1.0, 1.0, 0.75)
 		tentsuyu.ApplyCameraTransform(op, true)
 	}
+	//op.ColorM.Scale(1.0, 1.0, 0.0, 1.0)
 	screen.DrawImage(s.image, op)
 }

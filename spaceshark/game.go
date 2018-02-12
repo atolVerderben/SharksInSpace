@@ -112,6 +112,7 @@ func NewGame(w, h int) (game *Game, err error) {
 	tentsuyu.Input.RegisterButton("ToggleSound", ebiten.KeyF9, ebiten.KeyM)
 	tentsuyu.Input.RegisterButton("RotateRight", ebiten.KeyRight)
 	tentsuyu.Input.RegisterButton("RotateLeft", ebiten.KeyLeft)
+	tentsuyu.Input.RegisterButton("Shoot", ebiten.KeySpace)
 	//ZoomLevel = 3.0
 	game.player = NewPlayer()
 
@@ -145,7 +146,11 @@ func (g *Game) loadImages() error {
 	tentsuyu.ImageManager.LoadImageFromFile("shipTurnRight", "assets/sprites/ship-idle.png")
 	tentsuyu.ImageManager.LoadImageFromFile("thrust1", "assets/sprites/ship-thrust1.png")
 	tentsuyu.ImageManager.LoadImageFromFile("thrust2", "assets/sprites/ship-thrust2.png")
-	tentsuyu.ImageManager.LoadImageFromFile("stars", "assets/sprites/backdrop-purple.png")
+	tentsuyu.ImageManager.LoadImageFromFile("stars", "assets/sprites/startest-clay.png")
+	tentsuyu.ImageManager.LoadImageFromFile("background", "assets/sprites/space.png")
+	tentsuyu.ImageManager.LoadImageFromFile("laser1", "assets/sprites/laser1.png")
+	tentsuyu.ImageManager.LoadImageFromFile("laser2", "assets/sprites/laser2.png")
+	tentsuyu.ImageManager.LoadImageFromFile("laser3", "assets/sprites/laser3.png")
 
 	drawImage, err := ebiten.NewImage(64, 64, ebiten.FilterNearest)
 	if err != nil {

@@ -11,7 +11,7 @@ type Character interface {
 	Draw(*ebiten.Image) error
 	Update()
 	ReturnBasicObject() *tentsuyu.BasicObject
-	TakeDamage(float64)
+	TakeDamage(int)
 	IsDead() bool
 	ReturnFaction() Faction
 	SetID(string)
@@ -191,7 +191,7 @@ type CommonChar struct {
 	anim               *Animation
 	destX, destY       float64
 	hasDestination     bool
-	MaxHealth, Health  float64
+	MaxHealth, Health  int
 	faction            Faction
 	ID                 string
 }
@@ -228,7 +228,7 @@ func NewCommonChar(x, y float64, faction Faction) *CommonChar {
 	return c
 }
 
-func (c *CommonChar) SetHealth(health float64) {
+func (c *CommonChar) SetHealth(health int) {
 	c.Health = health
 	c.MaxHealth = health
 }
@@ -268,7 +268,7 @@ func (c CommonChar) Draw(screen *ebiten.Image) error {
 		return err
 	}
 
-	for i := 0.0; i < c.Health; i += 2 {
+	for i := 0; i < c.Health; i += 2 {
 		//Draw Health Bars
 		op = &ebiten.DrawImageOptions{}
 
@@ -384,7 +384,7 @@ func (c *CommonChar) ReturnBasicObject() *tentsuyu.BasicObject {
 	return c.BasicObject
 }
 
-func (c *CommonChar) TakeDamage(dmg float64) {
+func (c *CommonChar) TakeDamage(dmg int) {
 	c.Health -= dmg
 }
 

@@ -60,18 +60,18 @@ type Shark struct {
 	color      int
 	ownerID    string
 	removeFlag bool
-	animCount  float64
+	animCount  int
 	ticksAlive int
+	health     int
 	*tentsuyu.BasicObject
 	imgParts *tentsuyu.BasicImageParts
 }
 
 //Createshark returns a shark object
-func Createshark(x, y, angle, dX, dY float64) *Shark {
+func CreateShark(x, y, angle float64) *Shark {
 
 	shark := &Shark{
-		desX: dX,
-		desY: dY,
+		health: 2,
 		BasicObject: &tentsuyu.BasicObject{
 			X:      x,
 			Y:      y,
@@ -89,6 +89,14 @@ func Createshark(x, y, angle, dX, dY float64) *Shark {
 	}
 
 	return shark
+}
+
+func (shark *Shark) ReturnBasicObject() *tentsuyu.BasicObject {
+	return shark.BasicObject
+}
+
+func (shark *Shark) TakeDamage(dmg int) {
+	shark.health -= dmg
 }
 
 //RemoveShark removes the shark object from the slice
@@ -126,8 +134,11 @@ func (shark *Shark) InTrajectory(obj tentsuyu.GameObject) bool {
 //Update the shark -- returns true if shark is removed
 func (shark *Shark) Update(g *World) bool {
 
+	if shark.health <= 0 {
+		return true
+	}
 	shark.AddPosition(shark.GetSpeed()*math.Cos(shark.Angle), shark.GetSpeed()*math.Sin(shark.Angle))
-	shark.animCount += 0.5
+	shark.animCount++
 	//x, y := shark.GetPosition()
 	//log.Printf("shark: (%v,%v)\n", x, y)
 
@@ -137,7 +148,7 @@ func (shark *Shark) Update(g *World) bool {
 		}
 
 		if tentsuyu.Collision(char.ReturnBasicObject(), shark.BasicObject) {
-			char.TakeDamage(0.5)
+			char.TakeDamage(5)
 			return true
 		}
 	}

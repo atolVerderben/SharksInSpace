@@ -62,12 +62,12 @@ type SpaceShip struct {
 	PrevAngle                 float64
 	TurningLeft, TurningRight bool
 	IsServer                  bool
-	health                    float64
+	health                    int
 	currImage                 string
 	movingAnim                int
 }
 
-func (ship *SpaceShip) TakeDamage(dmg float64) {
+func (ship *SpaceShip) TakeDamage(dmg int) {
 	ship.health -= dmg
 }
 
@@ -109,6 +109,7 @@ func NewSpaceShip(name string, x, y float64) *SpaceShip {
 		LastAction:   ShipStopEngine,
 		BoundsWidth:  3200,
 		BoundsHeight: 3200,
+		health:       2,
 		/*lead: &Lead{
 			BasicImageParts: &tentsuyu.BasicImageParts{
 				Sx:     332,
@@ -223,9 +224,9 @@ func (ship *SpaceShip) ShiftCmd() *ShipCommand {
 }
 
 //Update the Spaceship
-func (ship *SpaceShip) Update(tick int) {
+func (ship *SpaceShip) Update() {
 
-	prevX, prevY := ship.GetPosition()
+	//prevX, prevY := ship.GetPosition()
 	ship.AddPosition(ship.VX, ship.VY)
 
 	/*if ship.Accelerating {
@@ -242,7 +243,20 @@ func (ship *SpaceShip) Update(tick int) {
 		sa.Update(prevX, prevY, ship.Angle)
 	}*/
 	x, y := ship.GetPosition()
-	if x > ship.BoundsWidth || x < 0 {
+	if x > ship.BoundsWidth {
+		ship.SetX(0)
+	}
+	if x < 0 {
+		ship.SetX(ship.BoundsWidth)
+
+	}
+	if y > ship.BoundsHeight {
+		ship.SetY(0)
+	}
+	if y < 0 {
+		ship.SetY(ship.BoundsHeight)
+	}
+	/*if x > ship.BoundsWidth || x < 0 {
 		x = prevX
 		ship.SetX(x)
 		ship.VX = 0
@@ -251,7 +265,7 @@ func (ship *SpaceShip) Update(tick int) {
 		y = prevY
 		ship.SetY(y)
 		ship.VY = 0
-	}
+	}*/
 	ship.X = Round(ship.X, 0.05)
 	ship.Y = Round(ship.Y, 0.05)
 	if ship.Accelerating {
@@ -328,4 +342,8 @@ func (ship *SpaceShip) Draw(screen *ebiten.Image) error {
 
 func Round(x, unit float64) float64 {
 	return float64(int64(x/unit+0.5)) * unit
+}
+
+func (ship *SpaceShip) ReturnFaction() Faction {
+	return FactionPlayer
 }

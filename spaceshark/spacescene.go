@@ -13,6 +13,7 @@ type SpaceScene struct {
 	tick           int
 	startTickTime  time.Time
 	gameStateMsg   GameStateMsg
+	world          *World
 }
 
 func NewSpaceScene(g *Game) *SpaceScene {
@@ -37,7 +38,13 @@ func NewSpaceScene(g *Game) *SpaceScene {
 			gm.SendMessage(p, now)
 		}
 	}(gm, g.player)*/
-	tentsuyu.Components.Camera.SetZoom(0.75)
+	tentsuyu.Components.Camera.SetZoom(1.0)
+	gm.world = &World{
+		characters: []Character{},
+		sharks:     CreateSharkController(),
+		bullets:    CreateBulletController(),
+	}
+	gm.world.characters = append(gm.world.characters, g.player.homeShip)
 
 	return gm
 }
@@ -60,6 +67,11 @@ func (gm *SpaceScene) Update(g *Game) error {
 		g.player.homeShip.Accelerating = false
 	}
 
+	if tentsuyu.Input.Button("Shoot").JustPressed() {
+		//gm.world.bullets.AddBullet(CreateBullet("Player", g.player.homeShip.X, g.player.homeShip.Y, g.player.homeShip.Angle))
+		gm.world.bullets.Fire("Player", g.player.homeShip.X, g.player.homeShip.Y, g.player.homeShip.Angle)
+	}
+
 	if gm.tick == 0 {
 		gm.startTickTime = time.Now()
 	}
@@ -67,18 +79,32 @@ func (gm *SpaceScene) Update(g *Game) error {
 	//log.Printf("Client Tick: %v", gm.tick)
 	tentsuyu.Components.Camera.FollowPlayer(g.player.homeShip, 3200, 3200)
 	g.player.Update(g)
-	for _, s := range gm.ships {
-		s.Update(gm.tick) //time.Now().UnixNano() - gm.startTickTime.UnixNano())
-	}
+	gm.world.Update()
+	/*for _, s := range gm.ships {
+		s.Update() //time.Now().UnixNano() - gm.startTickTime.UnixNano())
+	}*/
 	tentsuyu.Components.UIController.Update()
 	return nil
 }
 
 func (gm *SpaceScene) Draw(g *Game) error {
-	gm.starBackground.Draw(g.screen, false)
-	for _, s := range gm.ships {
-		s.Draw(g.screen)
+
+	/*op := &ebiten.DrawImageOptions{}
+	op.ImageParts = &tentsuyu.BasicImageParts{
+		Width:      256,
+		Height:     256,
+		DestWidth:  1336,
+		DestHeight: 768,
 	}
+	op.ColorM.Scale(1, 1, 1, 0.5)
+	if err := g.screen.DrawImage(tentsuyu.ImageManager.ReturnImage("background"), op); err != nil {
+		return err
+	}*/
+	gm.starBackground.Draw(g.screen, false)
+	gm.world.Draw(g.screen)
+	/*for _, s := range gm.ships {
+		s.Draw(g.screen)
+	}*/
 	tentsuyu.Components.UIController.Draw(g.screen)
 	//g.player.homeShip.Draw(g.screen)
 	return nil
