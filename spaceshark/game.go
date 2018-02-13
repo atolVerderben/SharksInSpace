@@ -13,7 +13,7 @@ import (
 	"golang.org/x/image/font/gofont/gomono"
 	"golang.org/x/image/font/gofont/goregular"
 
-	assets "github.com/atolVerderben/sharkstation/spaceshark/internal"
+	assets "github.com/atolVerderben/sharksinspace/spaceshark/internal"
 )
 
 var (
@@ -115,6 +115,8 @@ func NewGame(w, h int) (game *Game, err error) {
 	tentsuyu.Input.RegisterButton("RotateRight", ebiten.KeyRight)
 	tentsuyu.Input.RegisterButton("RotateLeft", ebiten.KeyLeft)
 	tentsuyu.Input.RegisterButton("Shoot", ebiten.KeySpace, ebiten.KeyEnter, ebiten.KeyControl)
+	tentsuyu.Input.RegisterButton("ZoomIn", ebiten.KeyQ)
+	tentsuyu.Input.RegisterButton("ZoomOut", ebiten.KeyE)
 	//ZoomLevel = 3.0
 	game.player = NewPlayer()
 
@@ -148,25 +150,25 @@ func (g *Game) loadImages() error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	tentsuyu.ImageManager.AddImage("ship", allImages[1])
-	tentsuyu.ImageManager.LoadImageFromFile("ship", "assets/sprites/ship-idle1.png")
-	tentsuyu.ImageManager.LoadImageFromFile("shipTurnRight", "assets/sprites/ship-idle.png")
-	tentsuyu.ImageManager.LoadImageFromFile("thrust1", "assets/sprites/ship-thrust1.png")
-	tentsuyu.ImageManager.LoadImageFromFile("thrust2", "assets/sprites/ship-thrust2.png")
-	tentsuyu.ImageManager.LoadImageFromFile("stars", "assets/sprites/startest-clay.png")
-	//tentsuyu.ImageManager.LoadImageFromFile("background", "assets/sprites/backdrop-purple.png")
-	tentsuyu.ImageManager.LoadImageFromFile("laser1", "assets/sprites/laser1.png")
-	tentsuyu.ImageManager.LoadImageFromFile("laser2", "assets/sprites/laser2.png")
-	tentsuyu.ImageManager.LoadImageFromFile("laser3", "assets/sprites/laser3.png")
-	tentsuyu.ImageManager.LoadImageFromFile("shark1", "assets/sprites/shark1.png")
-	tentsuyu.ImageManager.LoadImageFromFile("shark2", "assets/sprites/shark2.png")
-	tentsuyu.ImageManager.LoadImageFromFile("shark3", "assets/sprites/shark3.png")
-	tentsuyu.ImageManager.LoadImageFromFile("explosion1", "assets/sprites/explosion1.png")
-	tentsuyu.ImageManager.LoadImageFromFile("explosion2", "assets/sprites/explosion2.png")
-	tentsuyu.ImageManager.LoadImageFromFile("explosion3", "assets/sprites/explosion3.png")
-	tentsuyu.ImageManager.LoadImageFromFile("debris1", "assets/sprites/debris.png")
-	tentsuyu.ImageManager.LoadImageFromFile("debris2", "assets/sprites/debris2.png")
-	tentsuyu.ImageManager.LoadImageFromFile("gopher", "assets/sprites/gopher.png")
+
+	tentsuyu.ImageManager.AddImage("ship", allImages[13])
+	tentsuyu.ImageManager.AddImage("shipTurnRight", allImages[12])
+	tentsuyu.ImageManager.AddImage("thrust1", allImages[14])
+	tentsuyu.ImageManager.AddImage("thrust2", allImages[15])
+	tentsuyu.ImageManager.AddImage("stars", allImages[16])
+	//tentsuyu.ImageManager.AddImage("background", "assets/sprites/backdrop-purple.png")
+	tentsuyu.ImageManager.AddImage("laser1", allImages[6])
+	tentsuyu.ImageManager.AddImage("laser2", allImages[7])
+	tentsuyu.ImageManager.AddImage("laser3", allImages[8])
+	tentsuyu.ImageManager.AddImage("shark1", allImages[9])
+	tentsuyu.ImageManager.AddImage("shark2", allImages[10])
+	tentsuyu.ImageManager.AddImage("shark3", allImages[11])
+	tentsuyu.ImageManager.AddImage("explosion1", allImages[2])
+	tentsuyu.ImageManager.AddImage("explosion2", allImages[3])
+	tentsuyu.ImageManager.AddImage("explosion3", allImages[4])
+	tentsuyu.ImageManager.AddImage("debris1", allImages[0])
+	tentsuyu.ImageManager.AddImage("debris2", allImages[1])
+	tentsuyu.ImageManager.AddImage("gopher", allImages[5])
 
 	drawImage, err := ebiten.NewImage(64, 64, ebiten.FilterNearest)
 	if err != nil {

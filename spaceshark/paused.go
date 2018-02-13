@@ -33,11 +33,11 @@ func CreatePaused() *Paused {
 	}
 
 	testMenu := tentsuyu.NewMenu()
-	testMenu.AddElement([]tentsuyu.UIElement{tentsuyu.NewTextElement(0, 0, 100, 30, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Resume"}, color.White, 16)},
+	testMenu.AddElement([]tentsuyu.UIElement{tentsuyu.NewTextElement(0, 0, 100, 30, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Resume"}, color.White, 20)},
 		[]func(){func() { t.gameStateMsg = GameStateMsgUnPause }})
-	testMenu.AddElement([]tentsuyu.UIElement{tentsuyu.NewTextElement(0, 0, 100, 30, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Restart"}, color.White, 16)},
+	testMenu.AddElement([]tentsuyu.UIElement{tentsuyu.NewTextElement(0, 0, 100, 30, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Restart"}, color.White, 20)},
 		[]func(){func() { t.gameStateMsg = GameStateMsgReqMain }})
-	testMenu.AddElement([]tentsuyu.UIElement{tentsuyu.NewTextElement(0, 0, 100, 25, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Quit Game"}, color.White, 16)},
+	testMenu.AddElement([]tentsuyu.UIElement{tentsuyu.NewTextElement(0, 0, 100, 25, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Quit Game"}, color.White, 20)},
 		[]func(){func() {
 			os.Exit(0)
 		}})

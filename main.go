@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/atolVerderben/sharkstation/spaceshark"
+	"github.com/atolVerderben/sharksinspace/spaceshark"
 	"github.com/hajimehoshi/ebiten"
 )
 

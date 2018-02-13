@@ -27,7 +27,11 @@ func NewSpaceScene(g *Game) *SpaceScene {
 	}
 
 	g.player.homeShip.health = 20
+	g.player.homeShip.VX = 0
+	g.player.homeShip.VY = 0
+	g.player.homeShip.hitCoolDown = 0
 	g.player.sharksKilled = 0
+	tentsuyu.Components.Camera.MaxZoomOut = 0.5
 
 	gm.hud.AddTopLeft(tentsuyu.NewTextElement(0, 0, 200, 25, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Hit Points"}, color.White, 24))
 	gm.hud.AddTopLeft(tentsuyu.NewUINumberDisplayInt(&g.player.homeShip.health, 0, 0, 200, 25, tentsuyu.Components.ReturnFont(FntGoRegular), 24, color.White))
@@ -103,6 +107,13 @@ func (gm *SpaceScene) Update(g *Game) error {
 			g.player.homeShip.coolDown = 1
 			gm.world.bullets.Fire("Player", g.player.homeShip.X, g.player.homeShip.Y, g.player.homeShip.Angle)
 		}
+	}
+
+	if tentsuyu.Input.Button("ZoomOut").Down() {
+		tentsuyu.Components.Camera.ZoomOut()
+	}
+	if tentsuyu.Input.Button("ZoomIn").Down() {
+		tentsuyu.Components.Camera.ZoomIn()
 	}
 
 	if gm.tick == 0 {
