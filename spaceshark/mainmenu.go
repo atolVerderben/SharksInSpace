@@ -43,22 +43,23 @@ func NewMainMenu(g *Game) *MainMenu {
 
 	testMenu := tentsuyu.NewMenu()
 	testMenu.AddElement([]tentsuyu.UIElement{
-		tentsuyu.NewTextElement(0, 0, 155, 25, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Play Timed Game:"}, color.Black, 16),
-		tentsuyu.NewTextElement(0, 0, 70, 25, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Normal"}, color.Black, 16),
-		tentsuyu.NewTextElement(0, 0, 50, 25, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Hard"}, color.Black, 16)},
+		tentsuyu.NewTextElement(0, 0, 155, 25, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Waves Shark Battle:"}, color.White, 16),
+		tentsuyu.NewTextElement(0, 0, 70, 25, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Normal"}, color.White, 16),
+		tentsuyu.NewTextElement(0, 0, 50, 25, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Hard"}, color.White, 16)},
 		[]func(){nil,
 			func() {
 				t.gameStateMsg = GameStateMsgReqMain
-				g.gameData.SetGameMode(GameModeNormalTimed)
+				g.gameData.SetGameMode(GameModeWaveNormal)
 			},
 			func() {
 				t.gameStateMsg = GameStateMsgReqMain
-				g.gameData.SetGameMode(GameModeHardcoreTimed)
+				g.gameData.SetGameMode(GameModeWaveNormal)
 			}})
-	testMenu.AddElement([]tentsuyu.UIElement{tentsuyu.NewTextElement(0, 0, 300, 25, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Play Monster Battle"}, color.Black, 16)},
-		[]func(){func() { t.gameStateMsg = GameStateMsgReqBattleCharacterSelect }})
-	testMenu.AddElement([]tentsuyu.UIElement{tentsuyu.NewTextElement(0, 0, 300, 25, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Spaloosh With Friends  (Online)"}, color.Black, 16)},
-		[]func(){func() { t.gameStateMsg = GameStateMsgReqMPMainMenu }})
+	testMenu.AddElement([]tentsuyu.UIElement{tentsuyu.NewTextElement(0, 0, 300, 25, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Endless Shark Battle"}, color.White, 16)},
+		[]func(){func() {
+			t.gameStateMsg = GameStateMsgReqMain
+			g.gameData.SetGameMode(GameModeEndless)
+		}})
 	/*testMenu.AddElement([]tentsuyu.UIElement{tentsuyu.NewTextElement(0, 0, 200, 25, tentsuyu.Components.ReturnFont("font1"), []string{"Continue"}, color.Black, 24)},
 		[]func(){func() {
 			/*prevMenu = "MainMenu"

@@ -7,8 +7,8 @@ import (
 
 //Dimensions of the game screen
 const (
-	ScreenHeight = 1336
-	ScreenWidth  = 768
+	ScreenHeight = 1280
+	ScreenWidth  = 720
 )
 
 func main() {

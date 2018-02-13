@@ -2,6 +2,7 @@ package spaceshark
 
 import (
 	"math"
+	"math/rand"
 	"time"
 
 	"github.com/atolVerderben/tentsuyu"
@@ -66,6 +67,7 @@ type SpaceShip struct {
 	currImage                                          string
 	movingAnim                                         int
 	coolDown, coolDownMax, hitCoolDown, hitCoolDownMax int
+	switchExhaust                                      bool
 }
 
 func (ship *SpaceShip) TakeDamage(dmg int) {
@@ -113,7 +115,7 @@ func NewSpaceShip(name string, x, y float64) *SpaceShip {
 		LastAction:     ShipStopEngine,
 		BoundsWidth:    3200,
 		BoundsHeight:   3200,
-		health:         2,
+		health:         20,
 		coolDownMax:    15,
 		hitCoolDownMax: 60,
 		/*lead: &Lead{
@@ -231,6 +233,9 @@ func (ship *SpaceShip) ShiftCmd() *ShipCommand {
 
 //Update the Spaceship
 func (ship *SpaceShip) Update() {
+	if ship.IsDead() {
+		return
+	}
 	if ship.coolDown > 0 {
 		ship.coolDown++
 		if ship.coolDown > ship.coolDownMax {
@@ -291,21 +296,33 @@ func (ship *SpaceShip) Update() {
 		ship.movingAnim++
 		if ship.movingAnim > 30 {
 			ship.movingAnim = 0
+			if rand.Intn(10) >= 3 {
+				ship.switchExhaust = true
+			} else {
+				ship.switchExhaust = false
+			}
 		}
 	} else {
 		ship.movingAnim = 0
+
 	}
 }
 
 //Draw the Spaceship
 func (ship *SpaceShip) Draw(screen *ebiten.Image) error {
 
+	if ship.IsDead() {
+		return nil
+	}
 	if ship.Accelerating {
 		op := &ebiten.DrawImageOptions{}
 		behindX := 32 * math.Cos(ship.Angle)
 		behindY := 32 * math.Sin(ship.Angle)
 
 		op.GeoM.Translate(-float64(64)/2, -float64(24)/2)
+		if ship.switchExhaust {
+			op.GeoM.Scale(-1, 1)
+		}
 		op.GeoM.Rotate(ship.Angle + ship.AngleOffset)
 
 		op.GeoM.Translate(ship.X-behindX, ship.Y-behindY)

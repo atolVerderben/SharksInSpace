@@ -176,9 +176,9 @@ func (debris *Debris) Update(g *World) bool {
 	//log.Printf("debris: (%v,%v)\n", x, y)
 	if debris.ticksAlive > 60 {
 		for _, char := range g.characters {
-			/*if char.IsDead() {
+			if char.IsDead() {
 				continue
-			}*/
+			}
 
 			if tentsuyu.Collision(char.ReturnBasicObject(), debris.BasicObject) {
 				char.TakeDamage(1)

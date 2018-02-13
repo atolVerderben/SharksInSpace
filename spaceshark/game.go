@@ -12,6 +12,8 @@ import (
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"golang.org/x/image/font/gofont/gomono"
 	"golang.org/x/image/font/gofont/goregular"
+
+	assets "github.com/atolVerderben/sharkstation/spaceshark/internal"
 )
 
 var (
@@ -112,7 +114,7 @@ func NewGame(w, h int) (game *Game, err error) {
 	tentsuyu.Input.RegisterButton("ToggleSound", ebiten.KeyF9, ebiten.KeyM)
 	tentsuyu.Input.RegisterButton("RotateRight", ebiten.KeyRight)
 	tentsuyu.Input.RegisterButton("RotateLeft", ebiten.KeyLeft)
-	tentsuyu.Input.RegisterButton("Shoot", ebiten.KeySpace)
+	tentsuyu.Input.RegisterButton("Shoot", ebiten.KeySpace, ebiten.KeyEnter, ebiten.KeyControl)
 	//ZoomLevel = 3.0
 	game.player = NewPlayer()
 
@@ -142,12 +144,17 @@ func (g *Game) loadImages() error {
 	tentsuyu.Components.UIController.AddFontFile(FntGoMono, mono)
 	//tentsuyu.Components.UIController.AddFontFile("font1", tt)
 
+	allImages, err := assets.LoadAllImages()
+	if err != nil {
+		log.Fatal(err)
+	}
+	tentsuyu.ImageManager.AddImage("ship", allImages[1])
 	tentsuyu.ImageManager.LoadImageFromFile("ship", "assets/sprites/ship-idle1.png")
 	tentsuyu.ImageManager.LoadImageFromFile("shipTurnRight", "assets/sprites/ship-idle.png")
 	tentsuyu.ImageManager.LoadImageFromFile("thrust1", "assets/sprites/ship-thrust1.png")
 	tentsuyu.ImageManager.LoadImageFromFile("thrust2", "assets/sprites/ship-thrust2.png")
 	tentsuyu.ImageManager.LoadImageFromFile("stars", "assets/sprites/startest-clay.png")
-	tentsuyu.ImageManager.LoadImageFromFile("background", "assets/sprites/backdrop-purple.png")
+	//tentsuyu.ImageManager.LoadImageFromFile("background", "assets/sprites/backdrop-purple.png")
 	tentsuyu.ImageManager.LoadImageFromFile("laser1", "assets/sprites/laser1.png")
 	tentsuyu.ImageManager.LoadImageFromFile("laser2", "assets/sprites/laser2.png")
 	tentsuyu.ImageManager.LoadImageFromFile("laser3", "assets/sprites/laser3.png")
@@ -159,14 +166,15 @@ func (g *Game) loadImages() error {
 	tentsuyu.ImageManager.LoadImageFromFile("explosion3", "assets/sprites/explosion3.png")
 	tentsuyu.ImageManager.LoadImageFromFile("debris1", "assets/sprites/debris.png")
 	tentsuyu.ImageManager.LoadImageFromFile("debris2", "assets/sprites/debris2.png")
+	tentsuyu.ImageManager.LoadImageFromFile("gopher", "assets/sprites/gopher.png")
 
 	drawImage, err := ebiten.NewImage(64, 64, ebiten.FilterNearest)
 	if err != nil {
 		log.Fatal(err)
 	}
-	drawImage.Fill(color.RGBA{R: 0, G: 0, B: 252, A: 255})
-	tentsuyu.ImageManager.AddImage("blue", drawImage)
-	g.background = &backgroundImageParts{image: tentsuyu.ImageManager.ReturnImage("blue"), count: 20}
+	drawImage.Fill(color.RGBA{R: 255, G: 255, B: 255, A: 255})
+	tentsuyu.ImageManager.AddImage("white", drawImage)
+	g.background = &backgroundImageParts{image: tentsuyu.ImageManager.ReturnImage("white"), count: 20}
 	g.background.SetSize(1600, 1600)
 
 	textImg, err := ebiten.NewImage(1, 1, ebiten.FilterNearest)
@@ -243,15 +251,23 @@ func (g *Game) Loop(screen *ebiten.Image) error {
 		case GameStateMsgReqMain:
 			g.mainState = NewSpaceScene(g) //NewGameMain(g)
 			g.gameState = g.mainState
+		case GameStateMsgPause:
+			g.pausedState = g.gameState
+			g.gameState = CreatePaused()
+		case GameStateMsgUnPause:
+			g.gameState = g.pausedState
+			g.gameState.SetMsg(GameStateMsgNone)
 		}
 	}
 	if g.gameState != nil {
 		g.gameState.Update(g)
 	}
+	tentsuyu.Components.UIController.Update()
 	if !ebiten.IsRunningSlowly() {
 		if err := g.gameState.Draw(g); err != nil {
 			return err
 		}
+		tentsuyu.Components.UIController.Draw(g.screen)
 		//g.toggleScreenText.Draw(g.screen)
 	}
 	g.gameData.Update()

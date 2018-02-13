@@ -10,9 +10,10 @@ import (
 
 //SharkController keeps track of all active sharks
 type SharkController struct {
-	sharks    []*Shark
-	maxCount  int
-	nextSpawn int
+	sharks       []*Shark
+	maxCount     int
+	nextSpawn    int
+	sharksKilled int
 }
 
 //CreateSharkController creates a new empty SharkController
@@ -48,6 +49,8 @@ func (bc *SharkController) Update(g *World) {
 		g.debris.AddDebris(CreateDebris(removeList[r].X, removeList[r].Y, (float64(angle)*math.Pi)/180.0))
 		angle = rand.Intn(360)
 		g.debris.AddDebris(CreateDebris(removeList[r].X, removeList[r].Y, (float64(angle)*math.Pi)/180.0))
+		bc.sharksKilled++
+		g.player.sharksKilled++
 		bc.RemoveShark(removeList[r])
 	}
 	if bc.maxCount > len(bc.sharks) && bc.nextSpawn <= 0 {
@@ -177,9 +180,9 @@ func (shark *Shark) Update(g *World) bool {
 	//log.Printf("shark: (%v,%v)\n", x, y)
 
 	for _, char := range g.characters {
-		/*if char.IsDead() {
+		if char.IsDead() {
 			continue
-		}*/
+		}
 
 		if tentsuyu.Collision(char.ReturnBasicObject(), shark.BasicObject) {
 			char.TakeDamage(5)

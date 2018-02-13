@@ -2,44 +2,51 @@ package spaceshark
 
 import (
 	"image/color"
+	"math"
 	"os"
+
+	"github.com/hajimehoshi/ebiten"
 
 	"github.com/atolVerderben/tentsuyu"
 )
 
 type TitleMain struct {
-	gameStateMsg  GameStateMsg
-	timer         int
-	offsetX       int
-	offsetY       int
-	lunkerMode    bool
-	lunkerCommand int
-	title         *tentsuyu.TextElement
-	menu          *tentsuyu.Menu
-	background    *backgroundImageParts
-	startButton   *tentsuyu.BasicObject
-	currMenu      string
-	desc          *tentsuyu.TextElement
-	start         *tentsuyu.MenuElement
+	gameStateMsg   GameStateMsg
+	timer          int
+	offsetX        int
+	offsetY        int
+	lunkerMode     bool
+	lunkerCommand  int
+	title          *tentsuyu.TextElement
+	menu           *tentsuyu.Menu
+	background     *backgroundImageParts
+	startButton    *tentsuyu.BasicObject
+	currMenu       string
+	desc           *tentsuyu.TextElement
+	powered        *tentsuyu.TextElement
+	start          *tentsuyu.MenuElement
+	starBackground *backgroundImageParts
+	animCount      int
 }
 
 func NewTitleMain() *TitleMain {
-	tentsuyu.Components.Camera.SetZoom(2.0)
+	imgCursor, _ := tentsuyu.RenderTextToImage([]string{"`*"}, 26, 26, 26.0, tentsuyu.Components.ReturnFont(FntGoRegular), color.White)
+	tentsuyu.Components.UIController.SetCustomCursor(26, 26, 0, 0, imgCursor)
+	tentsuyu.Components.UIController.Cursor.SetStyle(tentsuyu.CursorPointer)
+
 	t := &TitleMain{
-		title: tentsuyu.NewTextElement(400, 25, 100, 20, tentsuyu.Components.ReturnFont(FntGoRegular),
-			[]string{"SPALOOSH!"}, color.Black, 16),
+		title: tentsuyu.NewTextElement(500, 25, 500, 50, tentsuyu.Components.ReturnFont(FntGoRegular),
+			[]string{"Shark! In Space?!"}, color.White, 32),
 		//[]string{"Test of a Nure-Onna", "(A.K.A. Spaloosh!)"}, color.White, 8),
-		desc: tentsuyu.NewTextElement(25, 150, 1300, 400, tentsuyu.Components.ReturnFont(FntGoRegular),
-			[]string{"Oh! I was just washing my hair human.",
-				"I am a Nure-Onna, we enjoy our privacy.",
-				"I will overlook this if you can win my game.",
-				"Find my 3 friends in the depths to live.",
-				"You have 30 seconds, and 24 shots.",
-				"Make them count... or you are mine!"}, color.White, 16),
+		desc: tentsuyu.NewTextElement(425, 600, 1300, 400, tentsuyu.Components.ReturnFont(FntGoRegular),
+			[]string{"I don't know how sharks survive in space,",
+				"        but it's your job to stop them!"}, color.White, 24),
+		powered: tentsuyu.NewTextElement(0, 74, 1300, 400, tentsuyu.Components.ReturnFont(FntGoRegular),
+			[]string{"Powered by Go (using Ebiten)"}, color.White, 12),
 	}
 
 	t.start = &tentsuyu.MenuElement{
-		UIElement:  tentsuyu.NewTextElementStationary(200, 325, 200, 30, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Start Game"}, color.White, 24),
+		UIElement:  tentsuyu.NewTextElementStationary(550, 325, 200, 40, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Start Game"}, color.White, 32),
 		Action:     func() { t.gameStateMsg = GameStateMsgReqMain },
 		Selectable: true,
 	}
@@ -73,6 +80,8 @@ func NewTitleMain() *TitleMain {
 		NotCentered: true,
 	}
 	t.currMenu = "A"
+	t.starBackground = &backgroundImageParts{image: tentsuyu.ImageManager.ReturnImage("stars"), count: 20}
+	t.starBackground.SetSize(1500, 1500)
 	//tentsuyu.SetCustomCursor(30, 30, 30, 482, tentsuyu.ImageManager.ReturnImage("uiSheet"))
 	return t
 }
@@ -88,6 +97,12 @@ func (t *TitleMain) Update(game *Game) error {
 	}
 	t.timer++
 
+	t.animCount++
+
+	if t.animCount > 40 {
+		t.animCount = 0
+	}
+
 	t.start.Update()
 	/*if tentsuyu.Input.LeftClick().JustReleased() {
 		tx, ty := tentsuyu.Input.GetMouseCoords()
@@ -99,7 +114,7 @@ func (t *TitleMain) Update(game *Game) error {
 	if tentsuyu.Input.Button("Escape").JustPressed() {
 		os.Exit(0)
 	}
-	if tentsuyu.Input.Button("Enter").JustPressed() {
+	if tentsuyu.Input.Button("Shoot").JustPressed() {
 		t.gameStateMsg = GameStateMsgReqMain
 	}
 	return nil
@@ -165,10 +180,49 @@ func (t *TitleMain) Draw(game *Game) error {
 	if err := game.screen.DrawImage(tentsuyu.ImageManager.ReturnImage("spaloosh-sheet"), op); err != nil {
 		return err
 	}*/
-
+	t.starBackground.Draw(game.screen, false)
 	t.start.Draw(game.screen)
-	//t.title.Draw(game.screen)
-	//t.desc.Draw(game.screen)
+	t.title.Draw(game.screen)
+	t.desc.Draw(game.screen)
+
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM.Translate(-32, -25)
+	x, y := tentsuyu.Input.GetMouseCoords()
+
+	op.GeoM.Rotate(math.Atan2(y-200, x-650) - rightAngle)
+	op.GeoM.Scale(2, 2)
+	op.GeoM.Translate(650, 200)
+
+	if err := game.screen.DrawImage(tentsuyu.ImageManager.ReturnImage("ship"), op); err != nil {
+		return err
+	}
+
+	op = &ebiten.DrawImageOptions{}
+	op.GeoM.Scale(2, 2)
+	op.GeoM.Rotate(rightAngle * 2)
+	op.GeoM.Translate(725, 600)
+	currImage := ""
+	if t.animCount < 10 {
+		currImage = "shark1"
+	} else if t.animCount >= 10 && t.animCount < 20 {
+		currImage = "shark2"
+	} else if t.animCount >= 20 && t.animCount < 30 {
+		currImage = "shark1"
+	} else if t.animCount >= 30 {
+		currImage = "shark3"
+	}
+	if err := game.screen.DrawImage(tentsuyu.ImageManager.ReturnImage(currImage), op); err != nil {
+		return err
+	}
+
+	op = &ebiten.DrawImageOptions{}
+	//op.GeoM.Scale(2, 2)
+	op.GeoM.Translate(35, 10)
+
+	if err := game.screen.DrawImage(tentsuyu.ImageManager.ReturnImage("gopher"), op); err != nil {
+		return err
+	}
+	t.powered.Draw(game.screen)
 
 	return nil
 }

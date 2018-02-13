@@ -13,6 +13,8 @@ const (
 	GameModeOnlineHost
 	GameModeOnlineJoin
 	GameModeOnlineRoom
+	GameModeWaveNormal
+	GameModeEndless
 )
 
 //GameData contains data for the game
