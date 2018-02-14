@@ -258,7 +258,7 @@ func (g *Game) Loop(screen *ebiten.Image) error {
 			g.gameState = CreatePaused()
 		case GameStateGameOver:
 			g.pausedState = g.gameState
-			g.gameState = CreateGameOver()
+			g.gameState = CreateGameOver(g)
 		case GameStateMsgUnPause:
 			g.gameState = g.pausedState
 			g.gameState.SetMsg(GameStateMsgNone)

@@ -165,6 +165,9 @@ func (bullet *Bullet) Update(g *World) bool {
 
 		if tentsuyu.Collision(shark.ReturnBasicObject(), bullet.BasicObject) {
 			shark.TakeDamage(1)
+			if shark.IsDead() {
+				g.player.sharksKilled++
+			}
 			return true
 		}
 	}

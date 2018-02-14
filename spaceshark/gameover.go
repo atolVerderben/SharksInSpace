@@ -3,6 +3,7 @@ package spaceshark
 import (
 	"image/color"
 	"os"
+	"strconv"
 
 	"github.com/atolVerderben/tentsuyu"
 	"github.com/hajimehoshi/ebiten"
@@ -10,26 +11,29 @@ import (
 
 //GameOver is displayed when the game is over
 type GameOver struct {
-	gameStateMsg  GameStateMsg
-	timer         int
-	offsetX       int
-	offsetY       int
-	lunkerMode    bool
-	lunkerCommand int
-	title         *tentsuyu.TextElement
-	menu          *tentsuyu.Menu
-	background    *backgroundImageParts
-	startButton   *tentsuyu.BasicObject
-	currMenu      string
+	gameStateMsg GameStateMsg
+	timer        int
+	offsetX      int
+	offsetY      int
+	title        *tentsuyu.TextElement
+	menu         *tentsuyu.Menu
+	background   *backgroundImageParts
+	startButton  *tentsuyu.BasicObject
+	highScore    *tentsuyu.TextElement
+	currMenu     string
 }
 
 //CreateGameOver creates either a winning screen or losing screen depending on the bool value
-func CreateGameOver() *GameOver {
+func CreateGameOver(g *Game) *GameOver {
 	imgCursor, _ := tentsuyu.RenderTextToImage([]string{"`*"}, 26, 26, 26.0, tentsuyu.Components.ReturnFont(FntGoRegular), color.White)
 	tentsuyu.Components.UIController.SetCustomCursor(26, 26, 0, 0, imgCursor)
 	tentsuyu.Components.UIController.Cursor.SetStyle(tentsuyu.CursorPointer)
 	t := &GameOver{
 		title: tentsuyu.NewTextElementStationary(500, 5, 600, 200, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"You've Been Eaten By Sharks!"}, color.White, 24),
+		highScore: tentsuyu.NewTextElementStationary(500, 500, 1000, 200, tentsuyu.Components.ReturnFont(FntGoRegular),
+			[]string{"Current Score: " + strconv.Itoa(g.gameData.currScore),
+				"",
+				"High Score:      " + strconv.Itoa(g.gameData.highScore)}, color.White, 32),
 	}
 
 	testMenu := tentsuyu.NewMenu()
@@ -123,6 +127,7 @@ func (t *GameOver) Draw(g *Game) error {
 
 	t.menu.Draw(g.screen)
 	t.title.Draw(g.screen)
+	t.highScore.Draw(g.screen)
 
 	return nil
 }
@@ -132,6 +137,7 @@ func (t *GameOver) Msg() GameStateMsg {
 	return t.gameStateMsg
 }
 
+//SetMsg sets the current gamestatemessage
 func (t *GameOver) SetMsg(msg GameStateMsg) {
 	t.gameStateMsg = msg
 }

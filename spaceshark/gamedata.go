@@ -29,6 +29,8 @@ type GameData struct {
 	playerCharacter, opponentCharacter string
 	youStart                           bool
 	joinedRoom                         string
+	highScore                          int
+	currScore                          int
 }
 
 //NewGameData creates a new GameData to keep track of the game
@@ -79,4 +81,11 @@ func (g *GameData) TimeInMilliseconds() int64 {
 	return time.Now().Sub(g.startTime).Nanoseconds() / int64(time.Millisecond)
 
 	//return g.time / 60
+}
+
+//SetHighScore compares the given score to current highscore and updates if it's greater
+func (g *GameData) SetHighScore(score int) {
+	if g.highScore < score {
+		g.highScore = score
+	}
 }

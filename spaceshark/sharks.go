@@ -25,6 +25,14 @@ func CreateSharkController() *SharkController {
 	return bc
 }
 
+//IsDead returns true if the shark is dead
+func (shark *Shark) IsDead() bool {
+	if shark.health <= 0 {
+		return true
+	}
+	return false
+}
+
 //Addshark to the SharkController
 func (bc *SharkController) Addshark(shark *Shark) {
 	bc.sharks = append(bc.sharks, shark)
@@ -50,7 +58,7 @@ func (bc *SharkController) Update(g *World) {
 		angle = rand.Intn(360)
 		g.debris.AddDebris(CreateDebris(removeList[r].X, removeList[r].Y, (float64(angle)*math.Pi)/180.0))
 		bc.sharksKilled++
-		g.player.sharksKilled++
+
 		bc.RemoveShark(removeList[r])
 	}
 	if bc.maxCount > len(bc.sharks) && bc.nextSpawn <= 0 {

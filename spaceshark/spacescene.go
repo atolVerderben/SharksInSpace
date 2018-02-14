@@ -38,10 +38,10 @@ func NewSpaceScene(g *Game) *SpaceScene {
 
 	tentsuyu.Components.Camera.MaxZoomOut = 0.5
 
-	gm.hud.AddTopLeft(tentsuyu.NewTextElement(0, 0, 200, 25, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Hit Points"}, color.White, 24))
+	gm.hud.AddTopLeft(tentsuyu.NewTextElement(0, 0, 200, 30, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Hit Points"}, color.White, 24))
 	gm.hud.AddTopLeft(tentsuyu.NewUINumberDisplayInt(&g.player.homeShip.health, 0, 0, 200, 25, tentsuyu.Components.ReturnFont(FntGoRegular), 24, color.White))
 
-	gm.hud.AddTopRight(tentsuyu.NewTextElement(0, 0, 200, 25, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Sharks Destroyed"}, color.White, 24))
+	gm.hud.AddTopRight(tentsuyu.NewTextElement(0, 0, 200, 30, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Sharks Destroyed"}, color.White, 24))
 	gm.hud.AddTopRight(tentsuyu.NewUINumberDisplayInt(&g.player.sharksKilled, 0, 0, 200, 25, tentsuyu.Components.ReturnFont(FntGoRegular), 24, color.White))
 
 	gm.ships = append(gm.ships, g.player.homeShip)
@@ -97,6 +97,8 @@ func (gm *SpaceScene) Update(g *Game) error {
 
 	if g.player.homeShip.IsDead() && !gm.playerJustDied {
 		gm.playerJustDied = true
+		g.gameData.SetHighScore(g.player.sharksKilled)
+		g.gameData.currScore = g.player.sharksKilled
 		gm.world.explosions.CreateExplosion(g.player.homeShip.X, g.player.homeShip.Y, 15, explosionLarge)
 		gm.deadTimer = 1
 	}
