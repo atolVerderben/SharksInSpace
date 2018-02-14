@@ -117,6 +117,8 @@ func NewGame(w, h int) (game *Game, err error) {
 	tentsuyu.Input.RegisterButton("Shoot", ebiten.KeySpace, ebiten.KeyEnter, ebiten.KeyControl)
 	tentsuyu.Input.RegisterButton("ZoomIn", ebiten.KeyQ)
 	tentsuyu.Input.RegisterButton("ZoomOut", ebiten.KeyE)
+	tentsuyu.Input.RegisterButton("Restart", ebiten.KeyR)
+	tentsuyu.Input.RegisterButton("Quit", ebiten.KeyQ)
 	//ZoomLevel = 3.0
 	game.player = NewPlayer()
 

@@ -30,16 +30,16 @@ func CreateGameOver(g *Game) *GameOver {
 	tentsuyu.Components.UIController.Cursor.SetStyle(tentsuyu.CursorPointer)
 	t := &GameOver{
 		title: tentsuyu.NewTextElementStationary(500, 5, 600, 200, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"You've Been Eaten By Sharks!"}, color.White, 24),
-		highScore: tentsuyu.NewTextElementStationary(500, 500, 1000, 200, tentsuyu.Components.ReturnFont(FntGoRegular),
+		highScore: tentsuyu.NewTextElementStationary(500, 350, 1000, 200, tentsuyu.Components.ReturnFont(FntGoMono),
 			[]string{"Current Score: " + strconv.Itoa(g.gameData.currScore),
 				"",
-				"High Score:      " + strconv.Itoa(g.gameData.highScore)}, color.White, 32),
+				"High Score:    " + strconv.Itoa(g.gameData.highScore)}, color.White, 32),
 	}
 
 	testMenu := tentsuyu.NewMenu()
-	testMenu.AddElement([]tentsuyu.UIElement{tentsuyu.NewTextElement(0, 0, 100, 30, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Restart"}, color.White, 20)},
+	testMenu.AddElement([]tentsuyu.UIElement{tentsuyu.NewTextElement(0, 0, 150, 30, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"[R]estart"}, color.White, 22)},
 		[]func(){func() { t.gameStateMsg = GameStateMsgReqMain }})
-	testMenu.AddElement([]tentsuyu.UIElement{tentsuyu.NewTextElement(0, 0, 100, 25, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Quit Game"}, color.White, 20)},
+	testMenu.AddElement([]tentsuyu.UIElement{tentsuyu.NewTextElement(0, 0, 150, 25, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"[Q]uit Game"}, color.White, 22)},
 		[]func(){func() {
 			os.Exit(0)
 		}})
@@ -83,6 +83,12 @@ func (t *GameOver) Update(game *Game) error {
 	}*/
 	if tentsuyu.Input.Button("Escape").JustPressed() {
 		//t.gameStateMsg = GameStateMsgUnPause
+	}
+	if tentsuyu.Input.Button("Restart").JustPressed() {
+		t.gameStateMsg = GameStateMsgReqMain
+	}
+	if tentsuyu.Input.Button("Quit").JustPressed() {
+		os.Exit(0)
 	}
 	return nil
 }

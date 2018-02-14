@@ -39,10 +39,10 @@ func NewSpaceScene(g *Game) *SpaceScene {
 	tentsuyu.Components.Camera.MaxZoomOut = 0.5
 
 	gm.hud.AddTopLeft(tentsuyu.NewTextElement(0, 0, 200, 30, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Hit Points"}, color.White, 24))
-	gm.hud.AddTopLeft(tentsuyu.NewUINumberDisplayInt(&g.player.homeShip.health, 0, 0, 200, 25, tentsuyu.Components.ReturnFont(FntGoRegular), 24, color.White))
+	gm.hud.AddTopLeft(tentsuyu.NewUINumberDisplayInt(&g.player.homeShip.health, 0, 0, 200, 25, tentsuyu.Components.ReturnFont(FntGoMono), 24, color.White))
 
 	gm.hud.AddTopRight(tentsuyu.NewTextElement(0, 0, 200, 30, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Sharks Destroyed"}, color.White, 24))
-	gm.hud.AddTopRight(tentsuyu.NewUINumberDisplayInt(&g.player.sharksKilled, 0, 0, 200, 25, tentsuyu.Components.ReturnFont(FntGoRegular), 24, color.White))
+	gm.hud.AddTopRight(tentsuyu.NewUINumberDisplayInt(&g.player.sharksKilled, 0, 0, 200, 25, tentsuyu.Components.ReturnFont(FntGoMono), 24, color.White))
 
 	gm.ships = append(gm.ships, g.player.homeShip)
 	gm.starBackground = &backgroundImageParts{image: tentsuyu.ImageManager.ReturnImage("stars"), count: 20}
