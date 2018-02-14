@@ -2,6 +2,7 @@ package spaceshark
 
 import (
 	"image/color"
+	"math/rand"
 	"time"
 
 	"github.com/atolVerderben/tentsuyu"
@@ -17,6 +18,7 @@ type SpaceScene struct {
 	pauseTick      int
 	hud            *tentsuyu.HUD
 	playerJustDied bool
+	deadTimer      int
 }
 
 func NewSpaceScene(g *Game) *SpaceScene {
@@ -31,6 +33,9 @@ func NewSpaceScene(g *Game) *SpaceScene {
 	g.player.homeShip.VY = 0
 	g.player.homeShip.hitCoolDown = 0
 	g.player.sharksKilled = 0
+
+	g.player.homeShip.SetPosition(float64(rand.Intn(3200)), float64(rand.Intn(3200)))
+
 	tentsuyu.Components.Camera.MaxZoomOut = 0.5
 
 	gm.hud.AddTopLeft(tentsuyu.NewTextElement(0, 0, 200, 25, tentsuyu.Components.ReturnFont(FntGoRegular), []string{"Hit Points"}, color.White, 24))
@@ -67,6 +72,9 @@ func NewSpaceScene(g *Game) *SpaceScene {
 
 func (gm *SpaceScene) Update(g *Game) error {
 	if tentsuyu.Input.Button("Escape").JustPressed() {
+		if gm.playerJustDied {
+			return nil
+		}
 		gm.gameStateMsg = GameStateMsgPause
 		gm.pauseTick = 1
 		return nil
@@ -79,10 +87,18 @@ func (gm *SpaceScene) Update(g *Game) error {
 		}
 		return nil
 	}
+	if gm.deadTimer > 0 {
+		gm.deadTimer++
+		if gm.deadTimer > 60 {
+			gm.SetMsg(GameStateGameOver)
+			gm.deadTimer = 0
+		}
+	}
 
 	if g.player.homeShip.IsDead() && !gm.playerJustDied {
 		gm.playerJustDied = true
 		gm.world.explosions.CreateExplosion(g.player.homeShip.X, g.player.homeShip.Y, 15, explosionLarge)
+		gm.deadTimer = 1
 	}
 
 	g.player.homeShip.TurningLeft = false
