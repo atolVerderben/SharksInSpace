@@ -1,9 +1,12 @@
 package spaceshark
 
 import (
+	"fmt"
 	"image/color"
 	"log"
 	"math/rand"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/atolVerderben/tentsuyu"
@@ -311,3 +314,25 @@ const (
 	FntGoMono              = "gomono"
 	FntGoBoldItalic        = "gobolditalic"
 )
+
+//debugGamePad prints out all info for the selected gamepad id (0 is generally player 1)
+func debugGamePad(id int) {
+
+	axes := map[int][]string{}
+	pressedButtons := map[int][]string{}
+	maxAxis := ebiten.GamepadAxisNum(id)
+	for a := 0; a < maxAxis; a++ {
+		v := ebiten.GamepadAxis(id, a)
+		axes[id] = append(axes[id], fmt.Sprintf("%d:%0.2f", a, v))
+	}
+	maxButton := ebiten.GamepadButton(ebiten.GamepadButtonNum(id))
+	for b := ebiten.GamepadButton(id); b < maxButton; b++ {
+		if ebiten.IsGamepadButtonPressed(id, b) {
+			pressedButtons[id] = append(pressedButtons[id], strconv.Itoa(int(b)))
+		}
+	}
+	str := fmt.Sprintf("  Buttons: %s\n", strings.Join(pressedButtons[id], ", "))
+	str += fmt.Sprintf("  Axes:    %s\n", strings.Join(axes[id], ", "))
+	str += "\n"
+	log.Println(str)
+}

@@ -5,6 +5,8 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/hajimehoshi/ebiten"
+
 	"github.com/atolVerderben/tentsuyu"
 )
 
@@ -24,8 +26,9 @@ type SpaceScene struct {
 func NewSpaceScene(g *Game) *SpaceScene {
 
 	gm := &SpaceScene{
-		ships: []*SpaceShip{},
-		hud:   tentsuyu.NewHUD(),
+		ships:     []*SpaceShip{},
+		hud:       tentsuyu.NewHUD(),
+		pauseTick: 1,
 	}
 
 	g.player.homeShip.health = 20
@@ -71,7 +74,16 @@ func NewSpaceScene(g *Game) *SpaceScene {
 }
 
 func (gm *SpaceScene) Update(g *Game) error {
-	if tentsuyu.Input.Button("Escape").JustPressed() {
+	if gm.pauseTick > 0 {
+		gm.pauseTick++
+		if gm.pauseTick == 15 {
+			tentsuyu.Components.UIController.DrawCursor = false
+			gm.pauseTick = 0
+		}
+		return nil
+	}
+
+	if tentsuyu.Input.Button("Escape").JustPressed() || ebiten.IsGamepadButtonPressed(0, ebiten.GamepadButton7) {
 		if gm.playerJustDied {
 			return nil
 		}
@@ -79,14 +91,7 @@ func (gm *SpaceScene) Update(g *Game) error {
 		gm.pauseTick = 1
 		return nil
 	}
-	if gm.pauseTick > 0 {
-		gm.pauseTick++
-		if gm.pauseTick == 30 {
-			tentsuyu.Components.UIController.DrawCursor = false
-			gm.pauseTick = 0
-		}
-		return nil
-	}
+
 	if gm.deadTimer > 0 {
 		gm.deadTimer++
 		if gm.deadTimer > 60 {
@@ -105,21 +110,21 @@ func (gm *SpaceScene) Update(g *Game) error {
 
 	g.player.homeShip.TurningLeft = false
 	g.player.homeShip.TurningRight = false
-	if tentsuyu.Input.Button("Left").Down() {
+	if tentsuyu.Input.Button("Left").Down() || ebiten.GamepadAxis(0, 2) < -0.40 {
 		g.player.homeShip.Turn("Left")
 		g.player.homeShip.TurningLeft = true
 	}
-	if tentsuyu.Input.Button("Right").Down() {
+	if tentsuyu.Input.Button("Right").Down() || ebiten.GamepadAxis(0, 2) > 0.40 {
 		g.player.homeShip.Turn("Right")
 		g.player.homeShip.TurningRight = true
 	}
-	if tentsuyu.Input.Button("Up").Down() {
+	if tentsuyu.Input.Button("Up").Down() || ebiten.GamepadAxis(0, 1) > 0.40 {
 		g.player.homeShip.Move()
 	} else {
 		g.player.homeShip.Accelerating = false
 	}
 
-	if tentsuyu.Input.Button("Shoot").Down() {
+	if tentsuyu.Input.Button("Shoot").Down() || ebiten.GamepadAxis(0, 5) > 0.10 || ebiten.IsGamepadButtonPressed(0, ebiten.GamepadButton0) {
 		//gm.world.bullets.AddBullet(CreateBullet("Player", g.player.homeShip.X, g.player.homeShip.Y, g.player.homeShip.Angle))
 		if g.player.homeShip.coolDown == 0 {
 			g.player.homeShip.coolDown = 1
@@ -127,10 +132,10 @@ func (gm *SpaceScene) Update(g *Game) error {
 		}
 	}
 
-	if tentsuyu.Input.Button("ZoomOut").Down() {
+	if tentsuyu.Input.Button("ZoomOut").Down() || ebiten.IsGamepadButtonPressed(0, ebiten.GamepadButton5) {
 		tentsuyu.Components.Camera.ZoomOut()
 	}
-	if tentsuyu.Input.Button("ZoomIn").Down() {
+	if tentsuyu.Input.Button("ZoomIn").Down() || ebiten.IsGamepadButtonPressed(0, ebiten.GamepadButton4) {
 		tentsuyu.Components.Camera.ZoomIn()
 	}
 

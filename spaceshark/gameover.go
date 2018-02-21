@@ -21,6 +21,7 @@ type GameOver struct {
 	startButton  *tentsuyu.BasicObject
 	highScore    *tentsuyu.TextElement
 	currMenu     string
+	menuTick     int
 }
 
 //CreateGameOver creates either a winning screen or losing screen depending on the bool value
@@ -73,6 +74,49 @@ func (t *GameOver) Update(game *Game) error {
 	}
 	t.timer++
 
+	t.timer++
+	if t.menuTick > 0 {
+		t.menuTick++
+		if t.menuTick > 15 {
+			t.menuTick = 0
+		}
+	}
+	if ebiten.GamepadAxis(0, 1) > 0.10 || tentsuyu.Input.Button("Up").JustPressed() {
+		if t.menuTick == 0 {
+			t.menuTick = 1
+			selected, _ := t.menu.ReturnSelected()
+			if selected == -1 {
+				t.menu.SelectHorizontal(0)
+			} else {
+				if selected == 0 {
+					t.menu.SelectHorizontal(1)
+				} else {
+					t.menu.SelectHorizontal(selected - 1)
+				}
+			}
+		}
+	}
+	if ebiten.GamepadAxis(0, 1) < -0.10 || tentsuyu.Input.Button("Down").JustPressed() {
+		if t.menuTick == 0 {
+			t.menuTick = 1
+			selected, _ := t.menu.ReturnSelected()
+
+			if selected == -1 {
+				t.menu.SelectHorizontal(0)
+			} else {
+				if selected == 1 {
+					t.menu.SelectHorizontal(0)
+				} else {
+					t.menu.SelectHorizontal(selected + 1)
+				}
+			}
+		}
+	}
+
+	if tentsuyu.Input.Button("Shoot").JustPressed() || ebiten.IsGamepadButtonPressed(0, ebiten.GamepadButton0) {
+		t.menu.PressSelected()
+	}
+
 	t.menu.Update()
 	/*if tentsuyu.Input.LeftClick().JustReleased() {
 		tx, ty := tentsuyu.Input.GetMouseCoords()
@@ -84,10 +128,10 @@ func (t *GameOver) Update(game *Game) error {
 	if tentsuyu.Input.Button("Escape").JustPressed() {
 		//t.gameStateMsg = GameStateMsgUnPause
 	}
-	if tentsuyu.Input.Button("Restart").JustPressed() {
+	if tentsuyu.Input.Button("Restart").JustPressed() || ebiten.IsGamepadButtonPressed(0, ebiten.GamepadButton0) {
 		t.gameStateMsg = GameStateMsgReqMain
 	}
-	if tentsuyu.Input.Button("Quit").JustPressed() {
+	if tentsuyu.Input.Button("Quit").JustPressed() || ebiten.IsGamepadButtonPressed(0, ebiten.GamepadButton1) {
 		os.Exit(0)
 	}
 	return nil
@@ -121,8 +165,8 @@ func (t *GameOver) Draw(g *Game) error {
 
 	op := &ebiten.DrawImageOptions{}
 	op.ImageParts = &tentsuyu.BasicImageParts{
-		Width:      256,
-		Height:     256,
+		Width:      32,
+		Height:     32,
 		DestWidth:  1336,
 		DestHeight: 768,
 	}

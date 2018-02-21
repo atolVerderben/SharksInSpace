@@ -124,7 +124,7 @@ func (t *TitleMain) Update(game *Game) error {
 	if tentsuyu.Input.Button("Escape").JustPressed() {
 		os.Exit(0)
 	}
-	if tentsuyu.Input.Button("Shoot").JustPressed() {
+	if tentsuyu.Input.Button("Shoot").JustPressed() || ebiten.IsGamepadButtonPressed(0, ebiten.GamepadButton0) || ebiten.IsGamepadButtonPressed(0, ebiten.GamepadButton7) {
 		t.gameStateMsg = GameStateMsgReqMain
 	}
 	return nil

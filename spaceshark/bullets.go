@@ -158,7 +158,9 @@ func (bullet *Bullet) Update(g *World) bool {
 	//log.Printf("Bullet: (%v,%v)\n", x, y)
 
 	for _, shark := range g.sharks.sharks {
-
+		if shark.IsDead() {
+			continue
+		}
 		/*if char.ReturnFaction() == bullet.owner.ReturnFaction() {
 			continue
 		}*/
