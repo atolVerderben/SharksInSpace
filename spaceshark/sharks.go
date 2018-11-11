@@ -195,6 +195,7 @@ func (shark *Shark) Update(g *World) bool {
 		if tentsuyu.Collision(char.ReturnBasicObject(), shark.BasicObject) {
 			char.TakeDamage(5)
 			g.explosions.CreateExplosion(shark.X, shark.Y, 8, explosionLarge)
+			AudioPlayer.PlaySE("playerHit")
 			return true
 		}
 	}

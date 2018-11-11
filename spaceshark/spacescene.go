@@ -106,6 +106,7 @@ func (gm *SpaceScene) Update(g *Game) error {
 		g.gameData.currScore = g.player.sharksKilled
 		gm.world.explosions.CreateExplosion(g.player.homeShip.X, g.player.homeShip.Y, 15, explosionLarge)
 		gm.deadTimer = 1
+		AudioPlayer.PlaySE("playerDie")
 	}
 
 	g.player.homeShip.TurningLeft = false
@@ -120,8 +121,16 @@ func (gm *SpaceScene) Update(g *Game) error {
 	}
 	if tentsuyu.Input.Button("Up").Down() || ebiten.GamepadAxis(0, 1) > 0.40 {
 		g.player.homeShip.Move()
+		if !AudioPlayer.ReturnSongPlayer("thruster").IsPlaying() {
+			AudioPlayer.ReturnSongPlayer("thruster").Rewind()
+			AudioPlayer.ReturnSongPlayer("thruster").Play()
+			AudioPlayer.ReturnSongPlayer("thruster").SetVolume(0.4)
+		}
+
 	} else {
 		g.player.homeShip.Accelerating = false
+		AudioPlayer.ReturnSongPlayer("thruster").Rewind()
+		AudioPlayer.ReturnSongPlayer("thruster").Pause()
 	}
 
 	if tentsuyu.Input.Button("Shoot").Down() || ebiten.GamepadAxis(0, 5) > 0.10 || ebiten.IsGamepadButtonPressed(0, ebiten.GamepadButton0) {
@@ -129,6 +138,7 @@ func (gm *SpaceScene) Update(g *Game) error {
 		if g.player.homeShip.coolDown == 0 {
 			g.player.homeShip.coolDown = 1
 			gm.world.bullets.Fire("Player", g.player.homeShip.X, g.player.homeShip.Y, g.player.homeShip.Angle)
+			AudioPlayer.PlaySE("shootLaser")
 		}
 	}
 
@@ -151,7 +161,12 @@ func (gm *SpaceScene) Update(g *Game) error {
 	/*for _, s := range gm.ships {
 		s.Update() //time.Now().UnixNano() - gm.startTickTime.UnixNano())
 	}*/
-
+	tentsuyu.Components.Camera.Update()
+	if !AudioPlayer.ReturnSongPlayer("map").IsPlaying() {
+		AudioPlayer.ReturnSongPlayer("map").Rewind()
+		AudioPlayer.ReturnSongPlayer("map").Play()
+		AudioPlayer.ReturnSongPlayer("map").SetVolume(0.5)
+	}
 	return nil
 }
 

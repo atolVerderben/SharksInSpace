@@ -25,6 +25,8 @@ var (
 	GameSheet        *SpriteSheet
 	PlaySoundEffects = true
 	rightAngle       = 1.5708
+	//AudioPlayer controls the audio for the whole game
+	AudioPlayer *tentsuyu.AudioPlayer
 )
 
 const (
@@ -90,7 +92,7 @@ func NewGame(w, h int) (game *Game, err error) {
 	ebiten.SetRunnableInBackground(true) //The timer gets messed up if this isn't enabled
 
 	tentsuyu.BootUp(float64(w), float64(h))
-
+	AudioPlayer, _ = tentsuyu.NewAudioPlayer()
 	//GameWorldManager = CreateWorldManager()
 	go func() {
 		if err := game.loadImages(); err != nil {
@@ -131,10 +133,10 @@ func NewGame(w, h int) (game *Game, err error) {
 func (g *Game) DrawBackground() error {
 	op := &ebiten.DrawImageOptions{}
 	op.ImageParts = &tentsuyu.BasicImageParts{
-	/*Sx:     GameSheet.Frames[frameBackground].Frame["x"],
-	Sy:     GameSheet.Frames[frameBackground].Frame["y"],
-	Width:  GameSheet.Frames[frameBackground].Frame["w"],
-	Height: GameSheet.Frames[frameBackground].Frame["h"],*/
+		/*Sx:     GameSheet.Frames[frameBackground].Frame["x"],
+		Sy:     GameSheet.Frames[frameBackground].Frame["y"],
+		Width:  GameSheet.Frames[frameBackground].Frame["w"],
+		Height: GameSheet.Frames[frameBackground].Frame["h"],*/
 	}
 
 	if err := g.screen.DrawImage(tentsuyu.ImageManager.ReturnImage("spaloosh-sheet"), op); err != nil {

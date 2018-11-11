@@ -74,7 +74,8 @@ func (ship *SpaceShip) TakeDamage(dmg int) {
 	if ship.hitCoolDown == 0 {
 		ship.health -= dmg
 		ship.hitCoolDown = 1
-		tentsuyu.Components.Camera.StartShaking()
+		tentsuyu.Components.Camera.StartShaking(true)
+		AudioPlayer.PlaySE("playerHit")
 	}
 }
 

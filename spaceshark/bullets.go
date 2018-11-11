@@ -167,8 +167,12 @@ func (bullet *Bullet) Update(g *World) bool {
 
 		if tentsuyu.Collision(shark.ReturnBasicObject(), bullet.BasicObject) {
 			shark.TakeDamage(1)
+			tentsuyu.Components.Camera.StartShaking(false)
 			if shark.IsDead() {
 				g.player.sharksKilled++
+				AudioPlayer.PlaySE("sharkExplode")
+			} else {
+				AudioPlayer.PlaySE("laserHit")
 			}
 			return true
 		}
@@ -181,6 +185,8 @@ func (bullet *Bullet) Update(g *World) bool {
 
 		if tentsuyu.Collision(d.ReturnBasicObject(), bullet.BasicObject) {
 			d.TakeDamage(1)
+			tentsuyu.Components.Camera.StartShaking(false)
+			AudioPlayer.PlaySE("laserHit")
 			return true
 		}
 	}
