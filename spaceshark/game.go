@@ -27,6 +27,7 @@ var (
 	rightAngle       = 1.5708
 	//AudioPlayer controls the audio for the whole game
 	AudioPlayer *tentsuyu.AudioPlayer
+	SpaceSheet  *tentsuyu.SpriteSheet
 )
 
 const (
@@ -199,6 +200,10 @@ func (g *Game) loadImages() error {
 	}
 	healthImg.Fill(color.RGBA{R: 255, G: 255, B: 255, A: 255})
 	tentsuyu.ImageManager.AddImage("health", healthImg)
+
+	//Boat, Bear and Cat
+	tentsuyu.ImageManager.LoadImageFromFile("spacesheet", "assets/images/bearraco.png")
+	SpaceSheet = tentsuyu.ReadSpriteSheet("assets/images/bearraco.json")
 
 	//GameSheet = ReadSpriteSheet("assets/spaloosh-sheet.json")
 
